@@ -22,6 +22,8 @@ export const hiraganaTexts = [
   // },
 ];
 
+export const jpSpace = "　";
+
 // Hiragana to romaji mapping
 export const hiraganaToRomaji: Record<string, string> = {
   あ: "a",
@@ -207,8 +209,8 @@ export const keyboardLayout = [
     { key: "o", hiragana: "ら" },
     { key: "p", hiragana: "せ" },
     { key: "[", hiragana: "゛" },
-    { key: "]", hiragana: "む" },
-    { key: "\\", hiragana: "ろ" },
+    { key: "]", hiragana: "゜" },
+    { key: "\\", hiragana: "む" },
   ],
   [
     { key: "a", hiragana: "ち" },
