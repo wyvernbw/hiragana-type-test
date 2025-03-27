@@ -23,6 +23,7 @@ export default function JapaneseInput({
   ref,
   onChange,
   children,
+  onCompositionEnd,
   ...props
 }: InputProps) {
   // We'll still track composition state for potential edge cases
@@ -34,8 +35,11 @@ export default function JapaneseInput({
   };
 
   // Handle composition end
-  const handleCompositionEnd = () => {
+  const handleCompositionEnd = (e) => {
     setIsComposing(false);
+    if (onCompositionEnd) {
+      onCompositionEnd(e);
+    }
   };
 
   // Handle all input changes - update parent state on every keystroke

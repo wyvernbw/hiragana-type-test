@@ -224,6 +224,7 @@ export const keyboardLayout = [
     { key: "l", hiragana: "り" },
     { key: ";", hiragana: "れ" },
     { key: "'", hiragana: "け" },
+    { key: "enter", hiragana: "enter" },
   ],
   [
     { key: "z", hiragana: "つ" },

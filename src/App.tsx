@@ -34,8 +34,7 @@ const currentTestAtom = atomWithDefault((get) => {
   return {
     text: hiraganaTexts[index].text,
     input: "",
-    errors: 0,
-    currentWord: 0,
+    pressedEnter: false,
   };
 });
 
@@ -52,6 +51,10 @@ const nextKeyAtom = atom((get) => {
   if (currentMatch === "partial") {
     const key = splitKanaDakuten(test.text[idx - 1]);
     return key.diacritic;
+  }
+
+  if (hiraganaMatch(test.text[idx], jpSpace) === "true") {
+    return test.pressedEnter ? jpSpace : "enter";
   }
   const key = splitKanaDakuten(test.text[idx]);
   return key.base;
@@ -89,7 +92,7 @@ const Letter = ({
       charClassName,
       "text-red-500 dark:text-red-400 bg-red-500/20",
     ),
-    next: "",
+    next: twMerge(charClassName, "text-primary font-medium"),
     partial: twMerge(
       charClassName,
       "border-b-2 border-teal-500 animate-pulse text-teal-500 dark:text-teal-500 bg-teal-500/20",
@@ -131,16 +134,26 @@ export const App = () => {
             <JapaneseInput
               ref={inputRef}
               className="relative min-h-[200px] p-4 rounded-md border bg-muted/50 font-mono text-lg my-4 flex"
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  setCurrentTest((prev) => ({
+                    ...prev,
+                    pressedEnter: true,
+                  }));
+                }
+              }}
+              onCompositionEnd={(e) => {
+                setCurrentTest((prev) => ({
+                  ...prev,
+                  pressedEnter: true,
+                }));
+              }}
               onChange={(e) => {
                 console.log(e.currentTarget.value);
-                const value = e.currentTarget.value;
-                const newWord = () => value[value.length - 1] === jpSpace;
                 setCurrentTest((prev) => ({
                   ...prev,
                   input: e.currentTarget.value,
-                  currentWord: newWord()
-                    ? prev.currentWord + 1
-                    : prev.currentWord,
+                  pressedEnter: false,
                 }));
               }}
             >
@@ -200,7 +213,11 @@ const KeyboardPreview = () => {
             {row.map((keyObj) => {
               const isNextKey =
                 hiraganaMatch(nextKey, keyObj.hiragana) === "true";
-              const keyWidth = keyObj.key === "space" ? "w-48" : "w-10";
+              const widthStyles: Record<string, string | undefined> = {
+                space: "w-48",
+                enter: "w-16",
+              };
+              const keyWidth = widthStyles[keyObj.key] ?? "w-10";
               const spaceHide = keyObj.key === "space" ? "hidden" : "";
               const homeRowStyle =
                 keyObj.key === "f" || keyObj.key === "j"
