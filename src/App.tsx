@@ -22,7 +22,7 @@ import { get } from "http";
 import { atomWithDefault } from "jotai/utils";
 import { twMerge } from "tailwind-merge";
 import JapaneseInput from "./components/japanese-input";
-import { Keyboard } from "lucide-react";
+import { Keyboard, Space } from "lucide-react";
 
 const currentTestIndexAtom = atom({
   index: Math.floor(Math.random() * (hiraganaTexts.length - 1)),
@@ -37,6 +37,24 @@ const currentTestAtom = atomWithDefault((get) => {
     errors: 0,
     currentWord: 0,
   };
+});
+
+const currentMatchAtom = atom((get) => {
+  const test = get(currentTestAtom);
+  const idx = Math.max(0, test.input.length - 1);
+  return hiraganaMatch(test.input[idx], test.text[idx]);
+});
+
+const nextKeyAtom = atom((get) => {
+  const test = get(currentTestAtom);
+  const currentMatch = get(currentMatchAtom);
+  const idx = Math.max(0, test.input.length);
+  if (currentMatch === "partial") {
+    const key = splitKanaDakuten(test.text[idx - 1]);
+    return key.diacritic;
+  }
+  const key = splitKanaDakuten(test.text[idx]);
+  return key.base;
 });
 
 type Test = ExtractAtomValue<typeof currentTestAtom>;
@@ -155,9 +173,7 @@ export const App = () => {
               })}
             </JapaneseInput>
           </div>
-          <KeyboardPreview
-            nextKey={currentTest.text[currentTest.input.length]}
-          />
+          <KeyboardPreview />
           <pre className="relative min-h-[200px] p-4 rounded-md border bg-muted/50 font-mono text-lg leading-relaxed my-4">
             {JSON.stringify(currentTest, null, 2)}
           </pre>
@@ -170,40 +186,51 @@ export const App = () => {
   );
 };
 
-const KeyboardPreview = ({ nextKey }: { nextKey: string }) => {
+const KeyboardPreview = () => {
+  const nextKey = useAtomValue(nextKeyAtom);
   return (
     <div className="mt-6 mb-2 flex flex-col">
       <h4 className="text-sm font-semibold flex items-center gap-2 mb-2">
         <Keyboard className="h-4 w-4" />
         Keyboard Guide
       </h4>
-      <div className="flex flex-col items-center gap-1 max-w-3xl mx-auto">
+      <div className="flex flex-col items-center gap-2 max-w-3xl mx-auto">
         {keyboardLayout.map((row, rowIndex) => (
-          <div key={rowIndex} className="flex gap-1 w-full justify-center">
+          <div key={rowIndex} className="flex gap-2 w-full justify-center">
             {row.map((keyObj) => {
-              const isNextKey = keyObj.hiragana === nextKey;
-              const keyWidth = keyObj.key === "space" ? "w-32" : "w-10";
+              const isNextKey =
+                hiraganaMatch(nextKey, keyObj.hiragana) === "true";
+              const keyWidth = keyObj.key === "space" ? "w-48" : "w-10";
+              const spaceHide = keyObj.key === "space" ? "hidden" : "";
+              const homeRowStyle =
+                keyObj.key === "f" || keyObj.key === "j"
+                  ? "font-bold bg-primary text-background"
+                  : "";
 
               return (
                 <div
                   key={keyObj.key}
                   className={`
                       p-6
-                      ${keyWidth} h-12 flex flex-col items-center justify-center rounded border 
+                      ${keyWidth} h-12 flex flex-col items-center justify-center rounded-md border 
                       ${
                         isNextKey
                           ? "bg-primary text-primary-foreground border-primary animate-pulse"
                           : "bg-muted border-input"
                       }
+                      ${homeRowStyle}
                     `}
                 >
                   <span className="font-semibold">
                     {keyObj.hiragana && (
-                      <span className="text-sm mt-0.5">{keyObj.hiragana}</span>
+                      <span className={twMerge("text-sm mt-0.5", spaceHide)}>
+                        {keyObj.hiragana}
+                      </span>
                     )}
+                    {keyObj.key === "space" && <Space />}
                   </span>
 
-                  <span className="text-sm">
+                  <span className="text-xs hidden">
                     {keyObj.key === "space"
                       ? "Space"
                       : keyObj.key.toUpperCase()}
