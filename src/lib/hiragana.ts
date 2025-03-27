@@ -1,7 +1,7 @@
 // Hiragana sample texts with their meanings
 export const hiraganaTexts = [
   {
-    text: "こんにちは わたしの なまえは たなかです",
+    text: "で こんにちは わたしの なまえは たなかです",
     meaning: "Hello, my name is Tanaka.",
   },
   // {
@@ -239,3 +239,49 @@ export const keyboardLayout = [
   ],
   [{ key: "space", hiragana: "　" }],
 ];
+
+type KanaSplitResult = {
+  base: string;
+  diacritic: "゛" | "゜" | "";
+};
+
+export function splitKanaDakuten(kana: string): KanaSplitResult {
+  const dakutenMap: Record<string, string> = {
+    が: "か",
+    ぎ: "き",
+    ぐ: "く",
+    げ: "け",
+    ご: "こ",
+    ざ: "さ",
+    じ: "し",
+    ず: "す",
+    ぜ: "せ",
+    ぞ: "そ",
+    だ: "た",
+    ぢ: "ち",
+    づ: "つ",
+    で: "て",
+    ど: "と",
+    ば: "は",
+    び: "ひ",
+    ぶ: "ふ",
+    べ: "へ",
+    ぼ: "ほ",
+  };
+
+  const handakutenMap: Record<string, string> = {
+    ぱ: "は",
+    ぴ: "ひ",
+    ぷ: "ふ",
+    ぺ: "へ",
+    ぽ: "ほ",
+  };
+
+  if (dakutenMap[kana]) {
+    return { base: dakutenMap[kana], diacritic: "゛" };
+  } else if (handakutenMap[kana]) {
+    return { base: handakutenMap[kana], diacritic: "゜" };
+  } else {
+    return { base: kana, diacritic: "" };
+  }
+}

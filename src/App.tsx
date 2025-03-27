@@ -16,6 +16,7 @@ import {
   hiraganaToRomaji,
   keyboardLayout,
   romajiToHiragana,
+  splitKanaDakuten,
 } from "./lib/hiragana";
 import { get } from "http";
 import { atomWithDefault } from "jotai/utils";
@@ -42,7 +43,7 @@ type Test = ExtractAtomValue<typeof currentTestAtom>;
 
 type LetterState = {
   text: string;
-  state: "correct" | "wrong" | "current" | "next";
+  state: "correct" | "wrong" | "current" | "next" | "partial";
 };
 
 const Letter = ({
@@ -57,24 +58,27 @@ const Letter = ({
 
   const hintChar = hiraganaToRomaji[text] || "";
 
-  if (state === "correct") {
-    // Character has been typed
-    charClassName = twMerge(
+  const styles: Record<LetterState["state"], string> = {
+    correct: twMerge(
       charClassName,
       "text-green-500 dark:text-green-400 bg-green-500/20",
-    ); // Correct
-  } else if (state === "current") {
-    // Current character
-    charClassName = twMerge(
+    ),
+    current: twMerge(
       charClassName,
       " bg-primary/20 text-primary border-b-2 border-primary animate-pulse",
-    );
-  } else if (state == "wrong") {
-    charClassName = twMerge(
+    ),
+    wrong: twMerge(
       charClassName,
       "text-red-500 dark:text-red-400 bg-red-500/20",
-    );
-  }
+    ),
+    next: "",
+    partial: twMerge(
+      charClassName,
+      "border-b-2 border-teal-500 animate-pulse text-teal-500 dark:text-teal-500 bg-teal-500/20",
+    ),
+  };
+
+  charClassName = styles[state];
 
   return (
     <div className={className} {...rest}>
@@ -127,14 +131,17 @@ export const App = () => {
                   if (idx > currentTest.input.length) {
                     return "next";
                   }
-                  if (characterEqual(currentTest.input[idx], el)) {
+                  const match = hiraganaMatch(currentTest.input[idx], el);
+                  if (match === "true") {
                     // Character has been typed
                     return "correct";
                   } else if (idx === currentTest.input.length) {
                     // Current character
                     return "current";
-                  } else if (!characterEqual(currentTest.input[idx], el)) {
+                  } else if (match === "false") {
                     return "wrong";
+                  } else if (match === "partial") {
+                    return "partial";
                   }
                   return "next";
                 };
@@ -210,12 +217,24 @@ const KeyboardPreview = ({ nextKey }: { nextKey: string }) => {
     </div>
   );
 };
-const characterEqual = (a: string, b: string) => {
+
+const hiraganaMatch = (a: string, b: string): "true" | "false" | "partial" => {
   if (a === " " || a === jpSpace) {
-    return b === " " || b === jpSpace;
+    return b === " " || b === jpSpace ? "true" : "false";
   }
   if (b === " " || b === jpSpace) {
-    return a === " " || a === jpSpace;
+    return a === " " || a === jpSpace ? "true" : "false";
   }
-  return a === b;
+  const aSplit = splitKanaDakuten(a);
+  const bSplit = splitKanaDakuten(b);
+  if (aSplit.base !== bSplit.base) {
+    return "false";
+  }
+  if (aSplit.diacritic === "" || bSplit.diacritic === "") {
+    if (aSplit.diacritic === bSplit.diacritic) {
+      return "true";
+    }
+    return "partial";
+  }
+  return aSplit.diacritic === bSplit.diacritic ? "true" : "false";
 };
