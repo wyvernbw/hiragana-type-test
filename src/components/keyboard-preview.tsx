@@ -11,7 +11,7 @@ export const KeyboardPreview = ({ className }: InputProps) => {
   const nextKey = useAtomValue(nextKeyAtom);
   return (
     <div className={twMerge("mt-6 mb-2 flex flex-col", className)}>
-      <h4 className="text-sm font-semibold flex items-center gap-2 mb-2">
+      <h4 className="text-sm flex items-center gap-2 mb-2">
         <Keyboard className="h-4 w-4" />
         Keyboard Guide
       </h4>
@@ -36,17 +36,17 @@ export const KeyboardPreview = ({ className }: InputProps) => {
                 <div
                   key={keyObj.key}
                   className={`
-                      p-6
+                      p-6 outline
                       ${keyWidth} h-12 flex flex-col items-center justify-center rounded-md border 
                       ${
                         isNextKey
-                          ? "bg-primary text-primary-foreground border-primary animate-pulse"
+                          ? "bg-primary font-semibold text-primary-foreground border-primary animate-pulse"
                           : "bg-muted border-input"
-                      }
+                      } 
                       ${homeRowStyle}
                     `}
                 >
-                  <span className="font-semibold">
+                  <span className={`${isNextKey ? "font-bold" : ""}`}>
                     {keyObj.hiragana && (
                       <span className={twMerge("text-sm mt-0.5", spaceHide)}>
                         {keyObj.hiragana}

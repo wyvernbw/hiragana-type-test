@@ -9,7 +9,7 @@ import {
   CommandSeparator,
   CommandShortcut,
 } from "@/components/ui/command";
-import { commandPaletteStateAtom, settingsAtom } from "@/state";
+import { commandPaletteStateAtom, settingsAtom, textAtom } from "@/state";
 import { atom, useAtom } from "jotai";
 import { CommandIcon, Moon, Sun } from "lucide-react";
 
@@ -118,6 +118,7 @@ const ThemeCommand = ({ ...props }: Props) => {
 
 const WordCountCommand = ({ ...props }: Props) => {
   const [subcommand, setSubcommand] = useAtom(subcommandAtom);
+  const [{ refetch }] = useAtom(textAtom);
   const [, setCommandPaletteState] = useAtom(commandPaletteStateAtom);
   const [settings, setSettings] = useAtom(settingsAtom);
   const schema = z.number().int().min(1).max(100);
@@ -146,6 +147,7 @@ const WordCountCommand = ({ ...props }: Props) => {
                 }));
                 setSubcommand("none");
                 setCommandPaletteState("closed");
+                refetch();
               }
             }
           }}

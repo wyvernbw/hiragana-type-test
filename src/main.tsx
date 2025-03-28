@@ -13,9 +13,7 @@ createRoot(document.getElementById("root")!).render(
     <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
       <QueryClientProvider client={queryClient}>
         <Provider>
-          <Suspense fallback="Loading...">
-            <App></App>
-          </Suspense>
+          <App></App>
         </Provider>
       </QueryClientProvider>
     </ThemeProvider>

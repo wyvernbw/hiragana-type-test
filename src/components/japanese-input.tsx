@@ -52,7 +52,7 @@ export default function JapaneseInput({
   };
 
   return (
-    <div className="relative min-h-[200px] p-4 rounded-md border bg-muted/50 font-mono text-lg leading-relaxed my-4">
+    <div className="relative min-h-[200px] max-h-[250px] overflow-hidden p-4 rounded-md border bg-muted/50 font-mono text-lg my-4">
       {label && (
         <label
           className="text-sm font-medium text-foreground"
@@ -61,6 +61,7 @@ export default function JapaneseInput({
           {label}
         </label>
       )}
+      <div className="w-full h-full absolute top-0 left-0 bg-linear-to-t from-stone-900/2  dark:from-stone-900/60 to-stone-900/0 leading-relaxed"></div>
       <input
         disabled={disabled}
         ref={ref}

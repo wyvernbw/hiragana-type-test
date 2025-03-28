@@ -7,7 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from "./components/ui/card";
-import { useEffect, useRef } from "react";
+import { Suspense, useEffect, useRef } from "react";
 import { hiraganaMatch } from "./lib/hiragana";
 
 import JapaneseInput from "./components/japanese-input";
@@ -25,6 +25,7 @@ import { Button } from "./components/ui/button";
 import { Command as CommandIcon } from "lucide-react";
 import { ThemeToggle } from "./components/theme-toggle";
 import { ResultsDrawer } from "./components/results-drawer";
+import { Skeleton } from "./components/ui/skeleton";
 
 export const App = () => {
   const [currentTest] = useAtom(currentTestAtom);
@@ -99,7 +100,7 @@ export const App = () => {
           <div className="">
             <JapaneseInput
               ref={inputRef}
-              className="relative min-h-[200px] p-4 rounded-md border bg-muted/50 font-mono text-lg my-4 flex"
+              className="relative max-h-[200px] p-4 rounded-md border bg-muted/50 font-mono text-lg my-4 flex"
               disabled={testState === "done"}
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
@@ -139,7 +140,7 @@ const LetterList = () => {
   const [currentTest] = useAtom(currentTestAtom);
 
   return (
-    <>
+    <Suspense fallback={<Skeleton />}>
       {[...(currentTest.text ?? [])].map((el, idx) => {
         const state = (): LetterState["state"] => {
           if (idx > currentTest.input.length) {
@@ -167,6 +168,6 @@ const LetterList = () => {
         };
         return <Letter text={text()} state={state()} key={el + idx} />;
       })}
-    </>
+    </Suspense>
   );
 };
