@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@radix-ui/react-dialog": "^1.1.6",
     "@radix-ui/react-slot": "^1.1.2",
     "@tailwindcss/vite": "^4.0.11",
     "@tanstack/query-core": "^5.69.0",
@@ -19,6 +20,7 @@
     "@trpc/tanstack-react-query": "^11.0.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "cmdk": "^1.1.1",
     "jotai": "^2.12.1",
     "jotai-derive": "^0.1.2",
     "jotai-tanstack-query": "^0.9.0",

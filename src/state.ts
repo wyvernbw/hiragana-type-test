@@ -41,3 +41,10 @@ export const nextKeyAtom = atom((get) => {
   const key = splitKanaDakuten(test.text[idx]);
   return key.base;
 });
+
+type CommandPaletteState = "open" | "closed";
+
+export const commandPaletteStateAtom = atom<CommandPaletteState>("closed");
+export const commandPaletteOpenAtom = atom(
+  (get) => get(commandPaletteStateAtom) === "open",
+);

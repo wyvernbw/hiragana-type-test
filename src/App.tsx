@@ -11,12 +11,24 @@ import { useEffect, useRef } from "react";
 import { hiraganaMatch } from "./lib/hiragana";
 
 import JapaneseInput from "./components/japanese-input";
-import { currentTestAtom } from "./state";
+import {
+  commandPaletteOpenAtom,
+  commandPaletteStateAtom,
+  currentTestAtom,
+} from "./state";
 import { KeyboardPreview } from "./components/keyboard-preview";
 import { Letter, LetterState } from "./components/letter";
+import { CommandPalette } from "./components/command-palette";
+import { Button } from "./components/ui/button";
+import { Command as CommandIcon } from "lucide-react";
+import { CommandItem } from "./components/ui/command";
 
 export const App = () => {
   const [, setCurrentTest] = useAtom(currentTestAtom);
+  const [commandPaletteOpen] = useAtom(commandPaletteOpenAtom);
+  const [commandPaletteState, setCommandPaletteState] = useAtom(
+    commandPaletteStateAtom,
+  );
 
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -26,12 +38,41 @@ export const App = () => {
     }
   }, []);
 
+  const commandButtonRef = useRef<HTMLButtonElement | undefined>(undefined);
+
+  useEffect(() => {
+    const handleKeydown = (event) => {
+      if (
+        event.key === "p" ||
+        (event.key == "P" && (event.metaKey || event.ctrlKey))
+      ) {
+        event.preventDefault();
+        if (commandButtonRef.current) {
+          commandButtonRef.current.click();
+        }
+      }
+    };
+    window.addEventListener("keydown", handleKeydown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeydown);
+    };
+  }, []);
+
   return (
     <div className="w-screen min-h-screen flex flex-col items-center md:justify-center">
+      <CommandPalette open={commandPaletteOpen} />
       <Card className="max-w-[800px] w-full">
         <CardHeader>
-          <CardTitle className="scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0">
+          <CardTitle className="scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0 justify-between flex">
             Hiragana Type Test
+            <Button
+              variant="outline"
+              onClick={() => setCommandPaletteState("open")}
+              ref={commandButtonRef}
+            >
+              <CommandIcon />P
+            </Button>
           </CardTitle>
           <CardDescription>Type the hiragana characters below.</CardDescription>
         </CardHeader>
