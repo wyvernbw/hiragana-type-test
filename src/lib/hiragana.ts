@@ -1,27 +1,3 @@
-// Hiragana sample texts with their meanings
-export const hiraganaTexts = [
-  {
-    text: "で こんにちは わたしの なまえは たなかです",
-    meaning: "Hello, my name is Tanaka.",
-  },
-  // {
-  // 	text: 'にほんごを べんきょうしています',
-  // 	meaning: 'I am studying Japanese.',
-  // },
-  // {
-  // 	text: 'あしたは あめが ふるでしょう',
-  // 	meaning: 'It will probably rain tomorrow.',
-  // },
-  // {
-  // 	text: 'さくらの はなが きれいです',
-  // 	meaning: 'The cherry blossoms are beautiful.',
-  // },
-  // {
-  // 	text: 'わたしは すしが だいすきです',
-  // 	meaning: 'I love sushi.',
-  // },
-];
-
 export const jpSpace = "　";
 
 // Hiragana to romaji mapping
@@ -286,3 +262,27 @@ export function splitKanaDakuten(kana: string): KanaSplitResult {
     return { base: kana, diacritic: "" };
   }
 }
+
+export const hiraganaMatch = (
+  a: string,
+  b: string,
+): "true" | "false" | "partial" => {
+  if (a === " " || a === jpSpace) {
+    return b === " " || b === jpSpace ? "true" : "false";
+  }
+  if (b === " " || b === jpSpace) {
+    return a === " " || a === jpSpace ? "true" : "false";
+  }
+  const aSplit = splitKanaDakuten(a);
+  const bSplit = splitKanaDakuten(b);
+  if (aSplit.base !== bSplit.base) {
+    return "false";
+  }
+  if (aSplit.diacritic === "" || bSplit.diacritic === "") {
+    if (aSplit.diacritic === bSplit.diacritic) {
+      return "true";
+    }
+    return "partial";
+  }
+  return aSplit.diacritic === bSplit.diacritic ? "true" : "false";
+};
