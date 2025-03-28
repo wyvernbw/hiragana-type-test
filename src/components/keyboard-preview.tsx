@@ -5,10 +5,12 @@ import { twMerge } from "tailwind-merge";
 import { Keyboard, Space } from "lucide-react";
 import { nextKeyAtom } from "@/state";
 
-export const KeyboardPreview = () => {
+interface InputProps extends React.HTMLAttributes<HTMLInputElement> {}
+
+export const KeyboardPreview = ({ className }: InputProps) => {
   const nextKey = useAtomValue(nextKeyAtom);
   return (
-    <div className="mt-6 mb-2 flex flex-col">
+    <div className={twMerge("mt-6 mb-2 flex flex-col", className)}>
       <h4 className="text-sm font-semibold flex items-center gap-2 mb-2">
         <Keyboard className="h-4 w-4" />
         Keyboard Guide

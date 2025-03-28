@@ -27,8 +27,8 @@ export const App = () => {
   }, []);
 
   return (
-    <div className="w-screen min-h-screen flex flex-col items-center justify-center">
-      <Card className="min-w-[600px]">
+    <div className="w-screen min-h-screen flex flex-col items-center md:justify-center">
+      <Card className="max-w-[800px] w-full">
         <CardHeader>
           <CardTitle className="scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0">
             Hiragana Type Test
@@ -66,7 +66,7 @@ export const App = () => {
               <LetterList />
             </JapaneseInput>
           </div>
-          <KeyboardPreview />
+          <KeyboardPreview className="hidden md:flex" />
         </CardContent>
         <CardFooter></CardFooter>
       </Card>{" "}
