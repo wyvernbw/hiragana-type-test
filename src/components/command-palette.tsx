@@ -10,22 +10,21 @@ import {
   CommandShortcut,
 } from "@/components/ui/command";
 import { commandPaletteStateAtom } from "@/state";
-import { useAtom } from "jotai";
-import { ChevronDown, ChevronUp, CommandIcon } from "lucide-react";
+import { atom, useAtom } from "jotai";
+import { CommandIcon, Moon, Sun } from "lucide-react";
 
 import React from "react";
+import { useTheme } from "./theme-provider";
 
 interface Props extends React.ComponentProps<typeof CommandDialog> {}
 
-export const CommandPalette = ({ ...props }: Props) => {
-  const [, setCommandPaletteState] = useAtom(commandPaletteStateAtom);
+type Subcommand = "none" | "theme";
+
+const subcommandAtom = atom<Subcommand>("none");
+
+const Palette = ({ children, ...props }: Props) => {
   return (
-    <CommandDialog
-      {...props}
-      onOpenChange={(open) => {
-        return setCommandPaletteState(open ? "open" : "closed");
-      }}
-    >
+    <CommandDialog {...props}>
       <Command className="">
         <div className="py-3 px-4 bg-primary font-semibold text-background text-xs flex items-center gap-2 font-mono">
           <div className="flex items-center gap-3 outline-background outline rounded px-2">
@@ -45,31 +44,67 @@ export const CommandPalette = ({ ...props }: Props) => {
         <CommandInput placeholder="Type a command or search..." />
         <CommandList className="overflow-hidden">
           <CommandEmpty>No results found.</CommandEmpty>
-          <CommandGroup heading="Settings">
-            <CommandItem>
-              <span>Calendar</span>
-            </CommandItem>
-            <CommandItem>
-              <span>Search Emoji</span>
-            </CommandItem>
-            <CommandItem>
-              <span>Calculator</span>
-            </CommandItem>
-            <CommandItem>
-              <span>Profile</span>
-              <CommandShortcut>⌘P</CommandShortcut>
-            </CommandItem>
-            <CommandItem>
-              <span>Billing</span>
-              <CommandShortcut>⌘B</CommandShortcut>
-            </CommandItem>
-            <CommandItem>
-              <span>Settings</span>
-              <CommandShortcut>⌘S</CommandShortcut>
-            </CommandItem>
-          </CommandGroup>
-        </CommandList>{" "}
+          {children}
+        </CommandList>
       </Command>
     </CommandDialog>
+  );
+};
+
+export const CommandPalette = ({ open, ...props }: Props) => {
+  const [, setCommandPaletteState] = useAtom(commandPaletteStateAtom);
+  const [subcommand, setSubcommand] = useAtom(subcommandAtom);
+  const isSubcommand = (sc: Subcommand) => subcommand === sc;
+  return (
+    <>
+      <Palette
+        {...props}
+        onOpenChange={(open) => {
+          return setCommandPaletteState(
+            open || subcommand !== "none" ? "open" : "closed",
+          );
+        }}
+        open={open && subcommand === "none"}
+      >
+        <CommandGroup heading="Settings">
+          <CommandItem
+            onSelect={() => {
+              console.log("Some theme");
+              return setSubcommand("theme");
+            }}
+          >
+            <span>Theme</span>
+          </CommandItem>
+        </CommandGroup>
+      </Palette>
+
+      <ThemeCommand open={isSubcommand("theme")} />
+    </>
+  );
+};
+
+const ThemeCommand = ({ ...props }: Props) => {
+  const [subcommand, setSubcommand] = useAtom(subcommandAtom);
+  const { setTheme } = useTheme();
+  return (
+    <Palette
+      {...props}
+      onOpenChange={(open) => {
+        if (!open) {
+          setSubcommand("none");
+        }
+      }}
+    >
+      <CommandGroup heading="Theme">
+        <CommandItem onSelect={() => setTheme("light")}>
+          <Sun />
+          <span>Light</span>
+        </CommandItem>
+        <CommandItem onSelect={() => setTheme("dark")}>
+          <Moon />
+          <span>Dark</span>
+        </CommandItem>{" "}
+      </CommandGroup>
+    </Palette>
   );
 };

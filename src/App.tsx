@@ -22,6 +22,7 @@ import { CommandPalette } from "./components/command-palette";
 import { Button } from "./components/ui/button";
 import { Command as CommandIcon } from "lucide-react";
 import { CommandItem } from "./components/ui/command";
+import { ThemeToggle } from "./components/theme-toggle";
 
 export const App = () => {
   const [, setCurrentTest] = useAtom(currentTestAtom);
@@ -59,6 +60,10 @@ export const App = () => {
     };
   }, []);
 
+  useEffect(() => {
+    console.log(commandPaletteState);
+  }, [commandPaletteState]);
+
   return (
     <div className="w-screen min-h-screen flex flex-col items-center md:justify-center">
       <CommandPalette open={commandPaletteOpen} />
@@ -66,13 +71,16 @@ export const App = () => {
         <CardHeader>
           <CardTitle className="scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0 justify-between flex">
             Hiragana Type Test
-            <Button
-              variant="outline"
-              onClick={() => setCommandPaletteState("open")}
-              ref={commandButtonRef}
-            >
-              <CommandIcon />P
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                onClick={() => setCommandPaletteState("open")}
+                ref={commandButtonRef}
+              >
+                <CommandIcon />P
+              </Button>
+              <ThemeToggle />
+            </div>
           </CardTitle>
           <CardDescription>Type the hiragana characters below.</CardDescription>
         </CardHeader>
