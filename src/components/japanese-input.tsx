@@ -11,9 +11,11 @@ interface InputProps extends React.HTMLAttributes<HTMLInputElement> {
   error?: string;
   fullWidth?: boolean;
   ref?: RefObject<HTMLInputElement | null>;
+  disabled?: bool;
 }
 
 export default function JapaneseInput({
+  disabled = false,
   label,
   helperText,
   error,
@@ -60,6 +62,7 @@ export default function JapaneseInput({
         </label>
       )}
       <input
+        disabled={disabled}
         ref={ref}
         className="absolute inset-0 w-full h-full opacity-0 cursor-text"
         autoComplete="off"

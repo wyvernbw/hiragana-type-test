@@ -15,21 +15,25 @@ import {
   commandPaletteOpenAtom,
   commandPaletteStateAtom,
   currentTestAtom,
+  testStateAtom,
+  updateTestAtom,
 } from "./state";
 import { KeyboardPreview } from "./components/keyboard-preview";
 import { Letter, LetterState } from "./components/letter";
 import { CommandPalette } from "./components/command-palette";
 import { Button } from "./components/ui/button";
 import { Command as CommandIcon } from "lucide-react";
-import { CommandItem } from "./components/ui/command";
 import { ThemeToggle } from "./components/theme-toggle";
+import { ResultsDrawer } from "./components/results-drawer";
 
 export const App = () => {
-  const [, setCurrentTest] = useAtom(currentTestAtom);
+  const [currentTest] = useAtom(currentTestAtom);
+  const [, setCurrentTest] = useAtom(updateTestAtom);
   const [commandPaletteOpen] = useAtom(commandPaletteOpenAtom);
   const [commandPaletteState, setCommandPaletteState] = useAtom(
     commandPaletteStateAtom,
   );
+  const [testState] = useAtom(testStateAtom);
 
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -38,6 +42,12 @@ export const App = () => {
       inputRef.current.focus();
     }
   }, []);
+
+  useEffect(() => {
+    if (testState === "not-started" && inputRef.current) {
+      inputRef.current.value = "";
+    }
+  }, [testState]);
 
   const commandButtonRef = useRef<HTMLButtonElement | undefined>(undefined);
 
@@ -67,6 +77,7 @@ export const App = () => {
   return (
     <div className="w-screen min-h-screen flex flex-col items-center md:justify-center">
       <CommandPalette open={commandPaletteOpen} />
+      <ResultsDrawer open={testState === "done"} />
       <Card className="max-w-[800px] w-full">
         <CardHeader>
           <CardTitle className="scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0 justify-between flex">
@@ -89,6 +100,7 @@ export const App = () => {
             <JapaneseInput
               ref={inputRef}
               className="relative min-h-[200px] p-4 rounded-md border bg-muted/50 font-mono text-lg my-4 flex"
+              disabled={testState === "done"}
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
                   setCurrentTest((prev) => ({
