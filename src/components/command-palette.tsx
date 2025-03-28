@@ -9,16 +9,19 @@ import {
   CommandSeparator,
   CommandShortcut,
 } from "@/components/ui/command";
-import { commandPaletteStateAtom } from "@/state";
+import { commandPaletteStateAtom, settingsAtom } from "@/state";
 import { atom, useAtom } from "jotai";
 import { CommandIcon, Moon, Sun } from "lucide-react";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useTheme } from "./theme-provider";
+import { z } from "zod";
+import { Input } from "./ui/input";
+import { Button } from "./ui/button";
 
 interface Props extends React.ComponentProps<typeof CommandDialog> {}
 
-type Subcommand = "none" | "theme";
+type Subcommand = "none" | "theme" | "word-count";
 
 const subcommandAtom = atom<Subcommand>("none");
 
@@ -54,6 +57,7 @@ const Palette = ({ children, ...props }: Props) => {
 export const CommandPalette = ({ open, ...props }: Props) => {
   const [, setCommandPaletteState] = useAtom(commandPaletteStateAtom);
   const [subcommand, setSubcommand] = useAtom(subcommandAtom);
+  useEffect(() => console.log(subcommand), [subcommand]);
   const isSubcommand = (sc: Subcommand) => subcommand === sc;
   return (
     <>
@@ -66,19 +70,22 @@ export const CommandPalette = ({ open, ...props }: Props) => {
         }}
         open={open && subcommand === "none"}
       >
+        <CommandGroup heading="Test">
+          <CommandItem onSelect={() => setSubcommand("word-count")}>
+            <span>Word Count</span>
+            <span className="font-mono text-primary/50">たんごすう</span>
+          </CommandItem>
+        </CommandGroup>
         <CommandGroup heading="Settings">
-          <CommandItem
-            onSelect={() => {
-              console.log("Some theme");
-              return setSubcommand("theme");
-            }}
-          >
+          <CommandItem onSelect={() => setSubcommand("theme")}>
             <span>Theme</span>
+            <span className="font-mono text-primary/50">テーマ</span>
           </CommandItem>
         </CommandGroup>
       </Palette>
 
       <ThemeCommand open={isSubcommand("theme")} />
+      <WordCountCommand open={isSubcommand("word-count")} />
     </>
   );
 };
@@ -106,5 +113,48 @@ const ThemeCommand = ({ ...props }: Props) => {
         </CommandItem>{" "}
       </CommandGroup>
     </Palette>
+  );
+};
+
+const WordCountCommand = ({ ...props }: Props) => {
+  const [subcommand, setSubcommand] = useAtom(subcommandAtom);
+  const [, setCommandPaletteState] = useAtom(commandPaletteStateAtom);
+  const [settings, setSettings] = useAtom(settingsAtom);
+  const schema = z.number().int().min(1).max(100);
+  const [inputState, setInputState] = useState(
+    schema.safeParse(settings.wordCount),
+  );
+  const errorStyle = inputState?.error ? "text-destructive font-semibold" : "";
+
+  return (
+    <CommandDialog
+      {...props}
+      onOpenChange={(open) => {
+        if (!open) setSubcommand("none");
+      }}
+    >
+      <Command className="">
+        <CommandInput
+          className={errorStyle}
+          placeholder="type a number"
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              if (inputState.data) {
+                setSettings((prev) => ({
+                  ...prev,
+                  wordCount: inputState.data,
+                }));
+                setSubcommand("none");
+                setCommandPaletteState("closed");
+              }
+            }
+          }}
+          onValueChange={(text) => {
+            const value = schema.safeParse(parseInt(text.trim()));
+            setInputState(value);
+          }}
+        />
+      </Command>
+    </CommandDialog>
   );
 };

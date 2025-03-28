@@ -1,15 +1,22 @@
 import { randomWords } from "@/client/api";
 import { atom, ExtractAtomValue } from "jotai";
 import { atomWithSuspenseQuery } from "jotai-tanstack-query";
-import { atomWithDefault } from "jotai/utils";
+import { atomWithDefault, atomWithStorage } from "jotai/utils";
 import { hiraganaMatch, jpSpace, splitKanaDakuten } from "./lib/hiragana";
 
 type Test = ExtractAtomValue<typeof currentTestAtom>;
 
-export const textAtom = atomWithSuspenseQuery((_get) => ({
-  queryKey: ["text"],
-  queryFn: async () => await randomWords(4),
-}));
+export const settingsAtom = atomWithStorage("settings", {
+  wordCount: 5,
+});
+
+export const textAtom = atomWithSuspenseQuery((get) => {
+  const wordCount = get(settingsAtom).wordCount;
+  return {
+    queryKey: ["text"],
+    queryFn: async () => await randomWords(wordCount),
+  };
+});
 
 export const currentTestAtom = atomWithDefault((get) => {
   const { data: text } = get(textAtom);
