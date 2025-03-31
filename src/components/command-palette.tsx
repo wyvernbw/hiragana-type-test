@@ -114,7 +114,6 @@ const ThemeCommand = ({ ...props }: Props) => {
 
 const WordCountCommand = ({ ...props }: Props) => {
   const [, setSubcommand] = useAtom(subcommandAtom);
-  const [{ refetch }] = useAtom(textAtom);
   const [, setCommandPaletteState] = useAtom(commandPaletteStateAtom);
   const [settings, setSettings] = useAtom(settingsAtom);
   const schema = z.number().int().min(1).max(100);
@@ -143,7 +142,6 @@ const WordCountCommand = ({ ...props }: Props) => {
                 }));
                 setSubcommand("none");
                 setCommandPaletteState("closed");
-                refetch();
               }
             }
           }}

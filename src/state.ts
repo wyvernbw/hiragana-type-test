@@ -13,12 +13,15 @@ export const settingsAtom = atomWithStorage("settings", {
 export const textAtom = atomWithSuspenseQuery((get) => {
   const wordCount = get(settingsAtom).wordCount;
   return {
-    queryKey: ["text"],
-    queryFn: async () => await randomWords(wordCount),
+    queryKey: ["text", wordCount],
+    queryFn: async (_params) => {
+      return await randomWords(wordCount);
+    },
   };
 });
 
 export const currentTestAtom = atomWithDefault((get) => {
+  // @ts-ignore
   const { data: text } = get(textAtom);
   return {
     errors: 0,
