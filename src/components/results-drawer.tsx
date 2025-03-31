@@ -1,22 +1,14 @@
 import {
   Drawer,
-  DrawerClose,
   DrawerContent,
   DrawerDescription,
   DrawerFooter,
   DrawerHeader,
   DrawerTitle,
-  DrawerTrigger,
 } from "@/components/ui/drawer";
 import { Button } from "./ui/button";
 import { useAtom } from "jotai";
-import {
-  accuracyAtom,
-  currentTestAtom,
-  testStateAtom,
-  textAtom,
-  wpmAtom,
-} from "@/state";
+import { accuracyAtom, currentTestAtom, textAtom, wpmAtom } from "@/state";
 import { useResetAtom } from "jotai/utils";
 import { useEffect } from "react";
 
@@ -25,8 +17,8 @@ type Props = React.ComponentProps<typeof Drawer> & {};
 export const ResultsDrawer = ({ ...props }: Props) => {
   const [accuracy] = useAtom(accuracyAtom);
   const resetTest = useResetAtom(currentTestAtom);
-  const [currentTest, setCurrentTest] = useAtom(currentTestAtom);
-  const [{ refetch, data }] = useAtom(textAtom);
+  const [currentTest] = useAtom(currentTestAtom);
+  const [{ refetch }] = useAtom(textAtom);
   const [wpm] = useAtom(wpmAtom);
   useEffect(() => {
     console.log(currentTest);

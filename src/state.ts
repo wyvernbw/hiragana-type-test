@@ -34,8 +34,7 @@ export const currentTestAtom = atomWithDefault((get) => {
 
 export const updateTestAtom = atom(
   null,
-  (get, set, value: (prev: Test) => Partial<Test>) => {
-    const state = get(testStateAtom);
+  (_get, set, value: (prev: Test) => Partial<Test>) => {
     set(currentTestAtom, (prev) => {
       const newValue = value(prev);
       if (!newValue.input) {

@@ -6,8 +6,6 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-  CommandSeparator,
-  CommandShortcut,
 } from "@/components/ui/command";
 import { commandPaletteStateAtom, settingsAtom, textAtom } from "@/state";
 import { atom, useAtom } from "jotai";
@@ -16,8 +14,6 @@ import { CommandIcon, Moon, Sun } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useTheme } from "./theme-provider";
 import { z } from "zod";
-import { Input } from "./ui/input";
-import { Button } from "./ui/button";
 
 interface Props extends React.ComponentProps<typeof CommandDialog> {}
 
@@ -91,7 +87,7 @@ export const CommandPalette = ({ open, ...props }: Props) => {
 };
 
 const ThemeCommand = ({ ...props }: Props) => {
-  const [subcommand, setSubcommand] = useAtom(subcommandAtom);
+  const [, setSubcommand] = useAtom(subcommandAtom);
   const { setTheme } = useTheme();
   return (
     <Palette
@@ -117,7 +113,7 @@ const ThemeCommand = ({ ...props }: Props) => {
 };
 
 const WordCountCommand = ({ ...props }: Props) => {
-  const [subcommand, setSubcommand] = useAtom(subcommandAtom);
+  const [, setSubcommand] = useAtom(subcommandAtom);
   const [{ refetch }] = useAtom(textAtom);
   const [, setCommandPaletteState] = useAtom(commandPaletteStateAtom);
   const [settings, setSettings] = useAtom(settingsAtom);

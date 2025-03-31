@@ -28,7 +28,6 @@ import { ResultsDrawer } from "./components/results-drawer";
 import { Skeleton } from "./components/ui/skeleton";
 
 export const App = () => {
-  const [currentTest] = useAtom(currentTestAtom);
   const [, setCurrentTest] = useAtom(updateTestAtom);
   const [commandPaletteOpen] = useAtom(commandPaletteOpenAtom);
   const [commandPaletteState, setCommandPaletteState] = useAtom(
@@ -37,6 +36,7 @@ export const App = () => {
   const [testState] = useAtom(testStateAtom);
 
   const inputRef = useRef<HTMLInputElement>(null);
+  const commandButtonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     if (inputRef.current) {
@@ -50,10 +50,8 @@ export const App = () => {
     }
   }, [testState]);
 
-  const commandButtonRef = useRef<HTMLButtonElement | undefined>(undefined);
-
   useEffect(() => {
-    const handleKeydown = (event) => {
+    const handleKeydown = (event: KeyboardEvent) => {
       if (
         event.key === "p" ||
         (event.key == "P" && (event.metaKey || event.ctrlKey))

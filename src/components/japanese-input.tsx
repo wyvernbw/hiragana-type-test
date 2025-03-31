@@ -2,8 +2,7 @@
 
 import type React from "react";
 
-import { useState, useRef, type ChangeEvent, RefObject } from "react";
-import { cn } from "@/lib/utils";
+import { useState, type ChangeEvent, RefObject } from "react";
 
 interface InputProps extends React.HTMLAttributes<HTMLInputElement> {
   label?: string;
@@ -11,7 +10,7 @@ interface InputProps extends React.HTMLAttributes<HTMLInputElement> {
   error?: string;
   fullWidth?: boolean;
   ref?: RefObject<HTMLInputElement | null>;
-  disabled?: bool;
+  disabled?: boolean;
 }
 
 export default function JapaneseInput({
@@ -21,7 +20,6 @@ export default function JapaneseInput({
   error,
   className,
   fullWidth = false,
-  value,
   ref,
   onChange,
   children,
@@ -29,7 +27,7 @@ export default function JapaneseInput({
   ...props
 }: InputProps) {
   // We'll still track composition state for potential edge cases
-  const [isComposing, setIsComposing] = useState(false);
+  const [, setIsComposing] = useState(false);
 
   // Handle composition start
   const handleCompositionStart = () => {
@@ -37,7 +35,9 @@ export default function JapaneseInput({
   };
 
   // Handle composition end
-  const handleCompositionEnd = (e) => {
+  const handleCompositionEnd = (
+    e: React.CompositionEvent<HTMLInputElement>,
+  ) => {
     setIsComposing(false);
     if (onCompositionEnd) {
       onCompositionEnd(e);
@@ -70,7 +70,6 @@ export default function JapaneseInput({
         autoCapitalize="off"
         autoCorrect="off"
         spellCheck="false"
-        value={value}
         onChange={handleChange}
         onCompositionStart={handleCompositionStart}
         onCompositionEnd={handleCompositionEnd}
