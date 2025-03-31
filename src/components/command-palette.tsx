@@ -7,7 +7,7 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
-import { commandPaletteStateAtom, settingsAtom, textAtom } from "@/state";
+import { commandPaletteStateAtom, settingsAtom } from "@/state";
 import { atom, useAtom } from "jotai";
 import { CommandIcon, Moon, Sun } from "lucide-react";
 
