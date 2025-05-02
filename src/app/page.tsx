@@ -24,10 +24,11 @@ import { KeyboardPreview } from "@/components/keyboard-preview";
 import { Letter, type LetterState } from "@/components/letter";
 import { CommandPalette } from "@/components/command-palette";
 import { Button } from "@/components/ui/button";
-import { Command as CommandIcon } from "lucide-react";
+import { Command as CommandIcon, User as UserIcon } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { ResultsDrawer } from "@/components/results-drawer";
 import { Skeleton } from "@/components/ui/skeleton";
+import { UserDropdown } from "@/components/user-dropdown";
 
 export default function Page() {
   const [, setCurrentTest] = useAtom(updateTestAtom);
@@ -82,7 +83,7 @@ export default function Page() {
       <Card className="w-full max-w-[800px]">
         <CardHeader>
           <CardTitle className="flex scroll-m-20 justify-between border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0">
-            Hiragana Type Test
+            🍛 Karē
             <div className="flex items-center gap-2">
               <Button
                 variant="outline"
@@ -92,6 +93,7 @@ export default function Page() {
                 <CommandIcon />P
               </Button>
               <ThemeToggle />
+              <UserDropdown />
             </div>
           </CardTitle>
           <CardDescription>Type the hiragana characters below.</CardDescription>

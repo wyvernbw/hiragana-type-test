@@ -126,3 +126,7 @@ export const commandPaletteStateAtom = atom<CommandPaletteState>("closed");
 export const commandPaletteOpenAtom = atom(
   (get) => get(commandPaletteStateAtom) === "open",
 );
+
+type Session = "none" | {};
+export const sessionAtom = atom<Session>("none");
+export const loggedInAtom = atom((get) => get(sessionAtom) !== "none");
