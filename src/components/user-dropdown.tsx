@@ -9,17 +9,18 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { User as UserIcon } from "lucide-react";
 import { Button } from "./ui/button";
-import { loggedInAtom, sessionAtom } from "@/app/state";
+import { loggedInAtom, sessionAtom, userSessionAtom } from "@/app/state";
 import { useAtom, useAtomValue } from "jotai";
 import Link from "next/link";
 
 export const UserDropdown = () => {
   const loggedIn = useAtomValue(loggedInAtom);
+  const [userSession, setUserSession] = useAtom(userSessionAtom);
 
   const LoggedIn = () => {
     return (
       <>
-        <DropdownMenuLabel>My Account</DropdownMenuLabel>
+        <DropdownMenuLabel>{userSession?.user.username}</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem>View Profile</DropdownMenuItem>
         <DropdownMenuItem>Logout</DropdownMenuItem>

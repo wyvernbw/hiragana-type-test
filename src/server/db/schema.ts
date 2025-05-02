@@ -1,7 +1,7 @@
 // Example model schema from the Drizzle docs
 // https://orm.drizzle.team/docs/sql-schema-declaration
 
-import { sql } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import { index, pgTableCreator } from "drizzle-orm/pg-core";
 
 /**
@@ -11,3 +11,29 @@ import { index, pgTableCreator } from "drizzle-orm/pg-core";
  * @see https://orm.drizzle.team/docs/goodies#multi-project-schema
  */
 export const createTable = pgTableCreator((name) => `hiragana-rewrite_${name}`);
+
+export const usersTable = createTable("users", (d) => ({
+  id: d.text().primaryKey().notNull(),
+  username: d.text().notNull(),
+  email: d.text().notNull(),
+  password: d.text().notNull(),
+}));
+
+export const sessionsTable = createTable("sessions", (d) => ({
+  id: d.text().primaryKey().notNull(),
+  userId: d
+    .text()
+    .notNull()
+    .references(() => usersTable.id),
+}));
+
+export const usersRelations = relations(usersTable, ({ many }) => ({
+  sessions: many(sessionsTable),
+}));
+
+export const sessionsRelations = relations(sessionsTable, ({ one }) => ({
+  user: one(usersTable, {
+    fields: [sessionsTable.userId],
+    references: [usersTable.id],
+  }),
+}));

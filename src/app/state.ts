@@ -3,6 +3,7 @@ import { atom, type ExtractAtomValue } from "jotai";
 import { atomWithSuspenseQuery } from "jotai-tanstack-query";
 import { atomWithDefault, atomWithStorage } from "jotai/utils";
 import { hiraganaMatch, jpSpace, splitKanaDakuten } from "@/lib/hiragana";
+import { querySession, type UserSession } from "@/server/actions";
 
 type Test = ExtractAtomValue<typeof currentTestAtom>;
 
@@ -127,6 +128,16 @@ export const commandPaletteOpenAtom = atom(
   (get) => get(commandPaletteStateAtom) === "open",
 );
 
-type Session = "none" | {};
-export const sessionAtom = atom<Session>("none");
-export const loggedInAtom = atom((get) => get(sessionAtom) !== "none");
+export const userSessionValueAtom = atomWithStorage<undefined | UserSession>(
+  "auth-session",
+  undefined,
+);
+export const userSessionAtom = atom(
+  (get) => get(userSessionValueAtom),
+  (_get, set, value: UserSession) => {
+    set(userSessionAtom, value);
+  },
+);
+export const loggedInAtom = atom(
+  async (get) => get(userSessionAtom) !== undefined,
+);
