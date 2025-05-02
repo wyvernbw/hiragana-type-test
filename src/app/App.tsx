@@ -1,5 +1,3 @@
-"use client";
-
 import { useAtom } from "jotai";
 import {
   Card,
@@ -8,11 +6,11 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from "./components/ui/card";
 import { Suspense, useEffect, useRef } from "react";
-import { hiraganaMatch } from "@/lib/hiragana";
+import { hiraganaMatch } from "./lib/hiragana";
 
-import JapaneseInput from "@/components/japanese-input";
+import JapaneseInput from "./components/japanese-input";
 import {
   commandPaletteOpenAtom,
   commandPaletteStateAtom,
@@ -20,16 +18,16 @@ import {
   testStateAtom,
   updateTestAtom,
 } from "./state";
-import { KeyboardPreview } from "@/components/keyboard-preview";
-import { Letter, type LetterState } from "@/components/letter";
-import { CommandPalette } from "@/components/command-palette";
-import { Button } from "@/components/ui/button";
+import { KeyboardPreview } from "./components/keyboard-preview";
+import { Letter, LetterState } from "./components/letter";
+import { CommandPalette } from "./components/command-palette";
+import { Button } from "./components/ui/button";
 import { Command as CommandIcon } from "lucide-react";
-import { ThemeToggle } from "@/components/theme-toggle";
-import { ResultsDrawer } from "@/components/results-drawer";
-import { Skeleton } from "@/components/ui/skeleton";
+import { ThemeToggle } from "./components/theme-toggle";
+import { ResultsDrawer } from "./components/results-drawer";
+import { Skeleton } from "./components/ui/skeleton";
 
-export default function Page() {
+export const App = () => {
   const [, setCurrentTest] = useAtom(updateTestAtom);
   const [commandPaletteOpen] = useAtom(commandPaletteOpenAtom);
   const [commandPaletteState, setCommandPaletteState] = useAtom(
@@ -76,12 +74,12 @@ export default function Page() {
   }, [commandPaletteState]);
 
   return (
-    <div className="flex min-h-screen w-screen flex-col items-center md:justify-center">
+    <div className="w-screen min-h-screen flex flex-col items-center md:justify-center">
       <CommandPalette open={commandPaletteOpen} />
       <ResultsDrawer open={testState === "done"} />
-      <Card className="w-full max-w-[800px]">
+      <Card className="max-w-[800px] w-full">
         <CardHeader>
-          <CardTitle className="flex scroll-m-20 justify-between border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0">
+          <CardTitle className="scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0 justify-between flex">
             Hiragana Type Test
             <div className="flex items-center gap-2">
               <Button
@@ -100,7 +98,7 @@ export default function Page() {
           <div className="">
             <JapaneseInput
               ref={inputRef}
-              className="bg-muted/50 relative my-4 flex max-h-[200px] rounded-md border p-4 font-mono text-lg"
+              className="relative max-h-[200px] p-4 rounded-md border bg-muted/50 font-mono text-lg my-4 flex"
               disabled={testState === "done"}
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
@@ -134,7 +132,7 @@ export default function Page() {
       </Card>{" "}
     </div>
   );
-}
+};
 
 const LetterList = () => {
   const [currentTest] = useAtom(currentTestAtom);
