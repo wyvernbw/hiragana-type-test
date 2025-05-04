@@ -14,6 +14,15 @@ import { passwordSchema, signupSchema } from "@/server/types";
 import { z } from "zod";
 import { redirect } from "next/navigation";
 
+const signupSchemaExtended = signupSchema
+  .extend({
+    confirmPassword: passwordSchema,
+  })
+  .refine((value) => value.confirmPassword === value.password, {
+    message: "passwords do not match.",
+    path: ["confirmPassword"],
+  });
+
 export function SignupForm({
   className,
   ...props
@@ -28,22 +37,34 @@ export function SignupForm({
     },
 
     validators: {
-      // Pass a schema or function to validate
-      onSubmit: signupSchema
-        .extend({
-          confirmPassword: passwordSchema,
-        })
-        .refine((value) => value.confirmPassword === value.password, {
-          message: "Passwords do not match.",
-        }),
+      onSubmitAsync: async ({ value }) => {
+        const signup = signupSchemaExtended.safeParse(value);
+        console.log(signup.error);
+        if (!signup.data) {
+          return {
+            fields: {
+              ...signup.error.formErrors.fieldErrors,
+            },
+          };
+        }
+        const data = await signUp(value);
+        console.log(data);
+        if (data.status === "error") {
+          return {
+            fields: {
+              [data.error]: [data.message],
+            },
+          };
+        }
+        setUserSession({
+          id: data.session.id,
+          userId: data.session.userId,
+          user: data.user,
+        });
+        return undefined;
+      },
     },
     onSubmit: async ({ value }) => {
-      const data = await signUp(value);
-      setUserSession({
-        id: data.session.id,
-        userId: data.session.userId,
-        user: data.user,
-      });
       redirect("/");
     },
   });
@@ -82,7 +103,7 @@ export function SignupForm({
                 />
                 {!field.state.meta.isValid && (
                   <em className="text-red-400">
-                    {field.state.meta.errors.map((err) => err?.message)}
+                    {field.state.meta.errorMap.onSubmit}
                   </em>
                 )}
               </>
@@ -103,7 +124,7 @@ export function SignupForm({
                 />
                 {!field.state.meta.isValid && (
                   <em className="text-red-400">
-                    {field.state.meta.errors.map((err) => err?.message)}
+                    {field.state.meta.errorMap.onSubmit}
                   </em>
                 )}
               </>
@@ -128,7 +149,7 @@ export function SignupForm({
                 />
                 {!field.state.meta.isValid && (
                   <em className="text-red-400">
-                    {field.state.meta.errors.map((err) => err?.message)}
+                    {field.state.meta.errorMap.onSubmit}
                   </em>
                 )}
               </>
@@ -151,7 +172,7 @@ export function SignupForm({
                 />
                 {!field.state.meta.isValid && (
                   <em className="text-red-400">
-                    {field.state.meta.errors.map((err) => err?.message)}
+                    {field.state.meta.errorMap.onSubmit}
                   </em>
                 )}
               </>

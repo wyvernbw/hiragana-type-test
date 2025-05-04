@@ -18,37 +18,77 @@ export const signUp = async (params: SignupParams) => {
   const data = signupSchema.parse(params);
   const { email, username } = params;
 
-  const password = await argon2.hash(data.password);
+  const password = await (async () => {
+    try {
+      return await argon2.hash(data.password);
+    } catch (err) {}
+  })();
+  if (!password) {
+    return {
+      status: "error",
+      error: "internal",
+      message: "internal server error.",
+    } as const;
+  }
   const id = nanoid();
 
-  const user = (
-    await db
-      .insert(usersTable)
-      .values({
-        id,
-        password,
-        username,
-        email,
-      })
-      .returning()
-  )[0];
+  const exists = await db.query.usersTable
+    .findFirst({
+      where: eq(usersTable.email, email),
+    })
+    .then((user) => user !== undefined);
 
-  if (user === undefined) {
-    throw "user is undefined";
+  if (exists) {
+    console.log("user already exists.");
+    return {
+      status: "error",
+      error: "email",
+      message: "user with that email already exists.",
+    } as const;
   }
 
-  const value = await db
-    .insert(sessionsTable)
-    .values({
-      id: nanoid(),
-      userId: id,
-    })
-    .returning();
+  try {
+    const user = (
+      await db
+        .insert(usersTable)
+        .values({
+          id,
+          password,
+          username,
+          email,
+        })
+        .returning()
+    )[0];
 
-  return {
-    session: sessionsSchema.parse(value[0]),
-    user: user,
-  };
+    if (user === undefined) {
+      return {
+        status: "error",
+        error: "internal",
+        message: "internal server error.",
+      } as const;
+    }
+
+    const value = await db
+      .insert(sessionsTable)
+      .values({
+        id: nanoid(),
+        userId: id,
+      })
+      .returning();
+
+    return {
+      status: "success",
+      session: sessionsSchema.parse(value[0]),
+      user: user,
+    } as const;
+  } catch (err) {
+    console.log(err);
+    return {
+      status: "error",
+      error: "internal",
+      message: "internal server error.",
+    } as const;
+  }
 };
 
 export const querySession = async (sessionId: string) => {

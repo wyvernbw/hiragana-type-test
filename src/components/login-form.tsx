@@ -48,11 +48,7 @@ export function LoginForm({
         let data = await loginSchema.safeParseAsync(value);
         if (data.error) {
           console.log(data.error);
-          return {
-            form: data.error.message,
-            email: data.error.formErrors.fieldErrors.email,
-            password: data.error.formErrors.fieldErrors.password,
-          };
+          return data.error.formErrors.fieldErrors;
         }
         if (!data.data) {
           return data.error;
