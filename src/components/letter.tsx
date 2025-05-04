@@ -1,4 +1,4 @@
-import { HTMLAttributes } from "react";
+import type { HTMLAttributes } from "react";
 import { hiraganaToRomaji } from "@/lib/hiragana";
 
 import { twMerge } from "tailwind-merge";

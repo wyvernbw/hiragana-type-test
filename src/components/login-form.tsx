@@ -10,9 +10,7 @@ import { login } from "@/server/actions";
 import { useAtom } from "jotai";
 import { userSessionAtom } from "@/app/state";
 import { z } from "zod";
-import { passwordSchema } from "@/server/types";
 import { redirect } from "next/navigation";
-import type { useRouter } from "next/router";
 
 let loginSchema = z
   .object({
@@ -35,7 +33,7 @@ export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"form">) {
-  const [userSession, setUserSession] = useAtom(userSessionAtom);
+  const [, setUserSession] = useAtom(userSessionAtom);
   const form = useForm({
     defaultValues: {
       email: "",
@@ -54,8 +52,7 @@ export function LoginForm({
           return data.error;
         }
         setUserSession({
-          id: data.data.session.id,
-          userId: data.data.session.userId,
+          ...data.data.session,
           user: data.data.user,
         });
       },
@@ -64,7 +61,6 @@ export function LoginForm({
       redirect("/");
     },
   });
-  const onChange = (field) => (e) => field.handleChange(e.target.value);
   const passwordError = useStore(
     form.store,
     (state) => state.errorMap.onSubmit?.password,
@@ -99,7 +95,7 @@ export function LoginForm({
                   name={field.name}
                   value={field.state.value}
                   onBlur={field.handleBlur}
-                  onChange={onChange(field)}
+                  onChange={(e) => field.handleChange(e.currentTarget.value)}
                   id="email"
                   placeholder="m@example.com"
                 />
@@ -122,7 +118,7 @@ export function LoginForm({
                   name={field.name}
                   value={field.state.value}
                   onBlur={field.handleBlur}
-                  onChange={onChange(field)}
+                  onChange={(e) => field.handleChange(e.currentTarget.value)}
                 />
                 <em className="text-red-400">{passwordError}</em>
               </>

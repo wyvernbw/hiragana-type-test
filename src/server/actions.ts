@@ -10,6 +10,7 @@ import { signupSchema, type SignupParams } from "./types";
 const sessionsSchema = z.object({
   id: z.string().nanoid(),
   userId: z.string().nanoid(),
+  lastUsed: z.string(),
 });
 
 export type Session = z.infer<typeof sessionsSchema>;

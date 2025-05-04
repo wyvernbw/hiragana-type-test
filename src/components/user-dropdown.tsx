@@ -9,7 +9,7 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { User as UserIcon } from "lucide-react";
 import { Button } from "./ui/button";
-import { loggedInAtom, sessionAtom, userSessionAtom } from "@/app/state";
+import { loggedInAtom, userSessionAtom } from "@/app/state";
 import { useAtom, useAtomValue } from "jotai";
 import Link from "next/link";
 

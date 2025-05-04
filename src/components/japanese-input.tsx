@@ -2,7 +2,7 @@
 
 import type React from "react";
 
-import { useState, type ChangeEvent, RefObject } from "react";
+import { useState, type ChangeEvent, type RefObject } from "react";
 
 interface InputProps extends React.HTMLAttributes<HTMLInputElement> {
   label?: string;

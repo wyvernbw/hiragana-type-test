@@ -102,6 +102,7 @@ export const testStateAtom = atom((get) => {
 export const currentMatchAtom = atom((get) => {
   const test = get(currentTestAtom);
   const idx = Math.max(0, test.input.length - 1);
+  if (!test.input[idx]) return "false";
   return hiraganaMatch(test.input[idx], test.text[idx]);
 });
 

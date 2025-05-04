@@ -6,12 +6,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
 
-import { useForm, useStore } from "@tanstack/react-form";
+import { useForm } from "@tanstack/react-form";
 import { signUp } from "@/server/actions";
 import { userSessionAtom } from "@/app/state";
 import { useAtom } from "jotai";
 import { passwordSchema, signupSchema } from "@/server/types";
-import { z } from "zod";
 import { redirect } from "next/navigation";
 
 const signupSchemaExtended = signupSchema
@@ -27,7 +26,7 @@ export function SignupForm({
   className,
   ...props
 }: React.ComponentProps<"form">) {
-  const [userSession, setUserSession] = useAtom(userSessionAtom);
+  const [, setUserSession] = useAtom(userSessionAtom);
   const form = useForm({
     defaultValues: {
       username: "",
@@ -57,19 +56,16 @@ export function SignupForm({
           };
         }
         setUserSession({
-          id: data.session.id,
-          userId: data.session.userId,
           user: data.user,
+          ...data.session,
         });
         return undefined;
       },
     },
-    onSubmit: async ({ value }) => {
+    onSubmit: async ({}) => {
       redirect("/");
     },
   });
-
-  const onChange = (field) => (e) => field.handleChange(e.target.value);
 
   return (
     <form
@@ -97,7 +93,7 @@ export function SignupForm({
                   name={field.name}
                   value={field.state.value}
                   onBlur={field.handleBlur}
-                  onChange={onChange(field)}
+                  onChange={(e) => field.handleChange(e.currentTarget.value)}
                   id="email"
                   placeholder="m@example.com"
                 />
@@ -118,7 +114,7 @@ export function SignupForm({
                   name={field.name}
                   value={field.state.value}
                   onBlur={field.handleBlur}
-                  onChange={onChange(field)}
+                  onChange={(e) => field.handleChange(e.currentTarget.value)}
                   id="username"
                   placeholder="username"
                 />
@@ -145,7 +141,7 @@ export function SignupForm({
                   name={field.name}
                   value={field.state.value}
                   onBlur={field.handleBlur}
-                  onChange={onChange(field)}
+                  onChange={(e) => field.handleChange(e.currentTarget.value)}
                 />
                 {!field.state.meta.isValid && (
                   <em className="text-red-400">
@@ -168,7 +164,7 @@ export function SignupForm({
                   name={field.name}
                   value={field.state.value}
                   onBlur={field.handleBlur}
-                  onChange={onChange(field)}
+                  onChange={(e) => field.handleChange(e.currentTarget.value)}
                 />
                 {!field.state.meta.isValid && (
                   <em className="text-red-400">
