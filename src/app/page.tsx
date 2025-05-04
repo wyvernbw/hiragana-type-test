@@ -165,11 +165,13 @@ export default function Page() {
 }
 
 const LetterList = () => {
+  "use client";
+
   const [currentTest] = useAtom(currentTestAtom);
 
   return (
     <Suspense fallback={<Skeleton />}>
-      {[...(currentTest.text ?? [])].map((el, idx) => {
+      {[...currentTest.text].map((el, idx) => {
         const state = (): LetterState["state"] => {
           if (idx > currentTest.input.length) {
             return "next";
@@ -193,7 +195,7 @@ const LetterList = () => {
           return "next";
         };
         const text = () => {
-          if (state() === "wrong" && idx < currentTest.input.length) {
+          if (state() === "wrong" && currentTest.input[idx]) {
             return currentTest.input[idx];
           }
           return el;

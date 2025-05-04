@@ -12,13 +12,13 @@ import { userSessionAtom } from "@/app/state";
 import { z } from "zod";
 import { redirect } from "next/navigation";
 
-let loginSchema = z
+const loginSchema = z
   .object({
     email: z.string().email(),
     password: z.string(),
   })
   .transform(async (value, ctx) => {
-    let data = await login(value);
+    const data = await login(value);
     if (data instanceof Object) {
       return data;
     }
@@ -43,7 +43,7 @@ export function LoginForm({
       onSubmitAsync: async ({ value }) => {
         console.log("SUBMIT");
 
-        let data = await loginSchema.safeParseAsync(value);
+        const data = await loginSchema.safeParseAsync(value);
         if (data.error) {
           console.log(data.error);
           return data.error.formErrors.fieldErrors;
@@ -73,9 +73,9 @@ export function LoginForm({
     <form
       className={cn("flex flex-col gap-6", className)}
       {...props}
-      onSubmit={(e) => {
+      onSubmit={async (e) => {
         e.preventDefault();
-        form.handleSubmit();
+        await form.handleSubmit();
       }}
     >
       <div className="flex flex-col items-center gap-2 text-center">
@@ -87,9 +87,8 @@ export function LoginForm({
       <div className="grid gap-6">
         <div className="grid gap-3">
           <Label htmlFor="email">Email</Label>
-          <form.Field
-            name="email"
-            children={(field) => (
+          <form.Field name="email">
+            {(field) => (
               <>
                 <Input
                   name={field.name}
@@ -102,15 +101,14 @@ export function LoginForm({
                 <em className="text-red-400">{emailError}</em>
               </>
             )}
-          />
+          </form.Field>{" "}
         </div>
         <div className="grid gap-3">
           <div className="flex items-center">
             <Label htmlFor="password">Password</Label>
           </div>
-          <form.Field
-            name="password"
-            children={(field) => (
+          <form.Field name="password">
+            {(field) => (
               <>
                 <Input
                   id="password"
@@ -123,7 +121,7 @@ export function LoginForm({
                 <em className="text-red-400">{passwordError}</em>
               </>
             )}
-          />
+          </form.Field>
         </div>
         <Button type="submit" className="w-full">
           Login

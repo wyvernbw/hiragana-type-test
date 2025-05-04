@@ -71,9 +71,9 @@ export function SignupForm({
     <form
       className={cn("flex flex-col gap-6", className)}
       {...props}
-      onSubmit={(e) => {
+      onSubmit={async (e) => {
         e.preventDefault();
-        form.handleSubmit();
+        await form.handleSubmit();
       }}
     >
       <div className="flex flex-col items-center gap-2 text-center">
@@ -85,9 +85,8 @@ export function SignupForm({
       <div className="grid gap-6">
         <div className="grid gap-3">
           <Label htmlFor="email">Email</Label>
-          <form.Field
-            name="email"
-            children={(field) => (
+          <form.Field name="email">
+            {(field) => (
               <>
                 <Input
                   name={field.name}
@@ -104,11 +103,10 @@ export function SignupForm({
                 )}
               </>
             )}
-          />
+          </form.Field>
           <Label htmlFor="username">Username</Label>
-          <form.Field
-            name="username"
-            children={(field) => (
+          <form.Field name="username">
+            {(field) => (
               <>
                 <Input
                   name={field.name}
@@ -125,15 +123,14 @@ export function SignupForm({
                 )}
               </>
             )}
-          />
+          </form.Field>
         </div>
         <div className="grid gap-3">
           <div className="flex items-center">
             <Label htmlFor="password">Password</Label>
           </div>
-          <form.Field
-            name="password"
-            children={(field) => (
+          <form.Field name="password">
+            {(field) => (
               <>
                 <Input
                   id="password"
@@ -150,13 +147,12 @@ export function SignupForm({
                 )}
               </>
             )}
-          />
+          </form.Field>
           <div className="flex items-center">
             <Label htmlFor="confirm-password">Confirm password</Label>
           </div>
-          <form.Field
-            name="confirmPassword"
-            children={(field) => (
+          <form.Field name="confirmPassword">
+            {(field) => (
               <>
                 <Input
                   id="confirm-password"
@@ -173,7 +169,7 @@ export function SignupForm({
                 )}
               </>
             )}
-          />
+          </form.Field>
         </div>
 
         <Button type="submit" className="w-full">

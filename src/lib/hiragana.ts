@@ -132,7 +132,7 @@ export const hiraganaToRomajiText = (text: string): string => {
     if (text[i] === "っ" && i + 1 < text.length) {
       const nextChar = text[i + 1];
       if (!nextChar) break;
-      const nextRomaji = hiraganaToRomaji[nextChar] || "";
+      const nextRomaji = hiraganaToRomaji[nextChar] ?? "";
       if (nextRomaji && nextRomaji.length > 0) {
         romaji += nextRomaji[0]; // Add the first consonant
       }
@@ -153,7 +153,7 @@ export const hiraganaToRomajiText = (text: string): string => {
     // Regular single character
     const ch = text[i];
     if (!ch) return romaji;
-    romaji += hiraganaToRomaji[ch] || ch;
+    romaji += hiraganaToRomaji[ch] ?? ch;
     i++;
   }
 

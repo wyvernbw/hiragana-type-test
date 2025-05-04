@@ -26,7 +26,7 @@ export const ResultsDrawer = ({ ...props }: Props) => {
   return (
     <Drawer
       {...props}
-      onClose={() => {
+      onClose={async () => {
         resetTest();
         // setCurrentTest({
         //   errors: 0,
@@ -38,7 +38,7 @@ export const ResultsDrawer = ({ ...props }: Props) => {
         //   startTime: Date.now(),
         //   endTime: Date.now()
         // });
-        refetch();
+        await refetch();
       }}
     >
       <DrawerContent className="min-h-1/2">

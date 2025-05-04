@@ -1,3 +1,5 @@
+"use client";
+
 import type { HTMLAttributes } from "react";
 import { hiraganaToRomaji } from "@/lib/hiragana";
 
@@ -18,7 +20,7 @@ export const Letter = ({
   let charClassName = "text-2xl font-bold";
   const hintClassName = "text-xs mt-1 text-muted-foreground";
 
-  const hintChar = hiraganaToRomaji[text] || "";
+  const hintChar = hiraganaToRomaji[text] ?? "";
 
   const styles: Record<LetterState["state"], string> = {
     correct: twMerge(

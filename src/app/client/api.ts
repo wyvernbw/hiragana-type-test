@@ -11,7 +11,7 @@ export const randomWords = async (count: number) => {
   )
     .then((res) => res.json())
     .then((res) => wordListSchema.parse(res));
-  const words = [...Array(count)]
+  const words = [...Array<number>(count)]
     .map((_) => {
       const idx = Math.floor(Math.random() * (res.words.length - 1));
       return res.words[idx];

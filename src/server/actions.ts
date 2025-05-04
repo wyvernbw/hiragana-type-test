@@ -101,9 +101,11 @@ export const querySession = async (sessionId: string) => {
     },
   });
   if (session === undefined) {
-    throw "error: session not found.";
+    return {
+      status: "error",
+    } as const;
   }
-  return session;
+  return { status: "success", session } as const;
 };
 
 export const login = async (loginParams: {
@@ -142,7 +144,10 @@ export const login = async (loginParams: {
   }
 };
 
-export type UserSession = Awaited<ReturnType<typeof querySession>>;
+export type UserSession = Exclude<
+  Awaited<ReturnType<typeof querySession>>["session"],
+  undefined
+>;
 
 export const refreshSession = async (sessionId: string) => {
   const res = await db

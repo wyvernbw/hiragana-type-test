@@ -5,7 +5,7 @@ import { twMerge } from "tailwind-merge";
 import { Keyboard, Space } from "lucide-react";
 import { nextKeyAtom } from "@/app/state";
 
-interface InputProps extends React.HTMLAttributes<HTMLInputElement> {}
+type InputProps = React.HTMLAttributes<HTMLInputElement>;
 
 export const KeyboardPreview = ({ className }: InputProps) => {
   const nextKey = useAtomValue(nextKeyAtom);

@@ -5,7 +5,7 @@ import { atomWithDefault, atomWithStorage } from "jotai/utils";
 import { hiraganaMatch, jpSpace, splitKanaDakuten } from "@/lib/hiragana";
 import { querySession, type UserSession } from "@/server/actions";
 
-type Test = ExtractAtomValue<typeof currentTestAtom>;
+type Test = Awaited<ExtractAtomValue<typeof currentTestAtom>>;
 
 export const settingsAtom = atomWithStorage("settings", {
   wordCount: 5,
@@ -21,9 +21,8 @@ export const textAtom = atomWithSuspenseQuery((get) => {
   };
 });
 
-export const currentTestAtom = atomWithDefault((get) => {
-  // @ts-ignore
-  const { data: text } = get(textAtom);
+export const currentTestAtom = atomWithDefault(async (get) => {
+  const { data: text } = await get(textAtom);
   return {
     errors: 0,
     totalErrors: 0,
@@ -39,7 +38,8 @@ export const currentTestAtom = atomWithDefault((get) => {
 export const updateTestAtom = atom(
   null,
   (_get, set, value: (prev: Test) => Partial<Test>) => {
-    set(currentTestAtom, (prev) => {
+    set(currentTestAtom, async (prevPromise) => {
+      const prev = await prevPromise;
       const newValue = value(prev);
       if (!newValue.input) {
         return { ...prev, ...newValue };
@@ -68,8 +68,8 @@ export const updateTestAtom = atom(
   },
 );
 
-export const accuracyAtom = atom((get) => {
-  const test = get(currentTestAtom);
+export const accuracyAtom = atom(async (get) => {
+  const test = await get(currentTestAtom);
   return (
     (Math.max(0, test.totalKeystrokes - test.totalErrors) /
       test.totalKeystrokes) *
@@ -77,48 +77,54 @@ export const accuracyAtom = atom((get) => {
   ).toFixed(1);
 });
 
-export const timeElapsedAtom = atom((get) => {
-  const test = get(currentTestAtom);
+export const timeElapsedAtom = atom(async (get) => {
+  const test = await get(currentTestAtom);
   return (test.endTime - test.startTime) / 1000;
 });
 
-export const wpmAtom = atom((get) => {
-  const test = get(currentTestAtom);
-  const time = get(timeElapsedAtom);
+export const wpmAtom = atom(async (get) => {
+  const test = await get(currentTestAtom);
+  const time = await get(timeElapsedAtom);
   return ((test.totalKeystrokes - test.errors) / 5 / (time / 60)).toFixed(1);
 });
 
-export const testStateAtom = atom((get) => {
-  const test = get(currentTestAtom);
+export const testStateAtom = atom(async (get) => {
+  const test = await get(currentTestAtom);
   if (test.input === "") return "not-started";
   if (test.input.length < test.text.length) return "started";
   // handle dakuon on last letter case
-  if (test.input[test.input.length - 1] === test.text[test.text.length - 1]) {
+  if (test.input.endsWith(test.text, test.text.length - 1)) {
     return "done";
   }
   return "started";
 });
 
-export const currentMatchAtom = atom((get) => {
-  const test = get(currentTestAtom);
+export const currentMatchAtom = atom(async (get) => {
+  const test = await get(currentTestAtom);
   const idx = Math.max(0, test.input.length - 1);
   if (!test.input[idx]) return "false";
+  if (!test.text[idx]) return "false";
   return hiraganaMatch(test.input[idx], test.text[idx]);
 });
 
-export const nextKeyAtom = atom((get) => {
-  const test = get(currentTestAtom);
-  const currentMatch = get(currentMatchAtom);
+export const nextKeyAtom = atom(async (get) => {
+  const test = await get(currentTestAtom);
+  const currentMatch = await get(currentMatchAtom);
   const idx = Math.max(0, test.input.length);
+  const current = test.text[idx];
+  if (!current) return "";
   if (currentMatch === "partial") {
-    const key = splitKanaDakuten(test.text[idx - 1]);
-    return key.diacritic;
+    const prev = test.text[idx - 1];
+    if (prev) {
+      const key = splitKanaDakuten(prev);
+      return key.diacritic;
+    }
   }
 
-  if (hiraganaMatch(test.text[idx], jpSpace) === "true") {
+  if (hiraganaMatch(current, jpSpace) === "true") {
     return test.pressedEnter ? jpSpace : "enter";
   }
-  const key = splitKanaDakuten(test.text[idx]);
+  const key = splitKanaDakuten(current);
   return key.base;
 });
 

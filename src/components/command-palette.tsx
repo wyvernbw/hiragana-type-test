@@ -15,7 +15,7 @@ import React, { useEffect, useState } from "react";
 import { useTheme } from "next-themes";
 import { z } from "zod";
 
-interface Props extends React.ComponentProps<typeof CommandDialog> {}
+type Props = React.ComponentProps<typeof CommandDialog>;
 
 type Subcommand = "none" | "theme" | "word-count";
 
