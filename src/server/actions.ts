@@ -65,4 +65,40 @@ export const querySession = async (sessionId: string) => {
   return session;
 };
 
+export const login = async (loginParams: {
+  email: string;
+  password: string;
+}) => {
+  const { email, password } = loginParams;
+  console.log("login attempt.");
+  const user = await db.query.usersTable.findFirst({
+    where: eq(usersTable.email, email),
+  });
+  if (user === undefined) {
+    return "user with that email does not exist.";
+  }
+  try {
+    if (!(await argon2.verify(user.password, password))) {
+      return "passwords do not match.";
+    }
+    const session = await db
+      .insert(sessionsTable)
+      .values({ id: nanoid(), userId: user.id })
+      .returning()
+      .then((values) => values[0]);
+    if (!session) {
+      console.log("ERR: can't create session.");
+      return "internal server error.";
+    }
+    console.log("user login success.");
+    return {
+      session: sessionsSchema.parse(session),
+      user,
+    };
+  } catch (err) {
+    console.log("ERR: ", err);
+    return "internal server error.";
+  }
+};
+
 export type UserSession = Awaited<ReturnType<typeof querySession>>;

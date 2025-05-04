@@ -134,8 +134,8 @@ export const userSessionValueAtom = atomWithStorage<undefined | UserSession>(
 );
 export const userSessionAtom = atom(
   (get) => get(userSessionValueAtom),
-  (_get, set, value: UserSession) => {
-    set(userSessionAtom, value);
+  (_get, set, value: UserSession | undefined) => {
+    set(userSessionValueAtom, value);
   },
 );
 export const loggedInAtom = atom(

@@ -23,7 +23,13 @@ export const UserDropdown = () => {
         <DropdownMenuLabel>{userSession?.user.username}</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem>View Profile</DropdownMenuItem>
-        <DropdownMenuItem>Logout</DropdownMenuItem>
+        <DropdownMenuItem
+          onClick={(_e) => {
+            setUserSession(undefined);
+          }}
+        >
+          Logout
+        </DropdownMenuItem>
       </>
     );
   };

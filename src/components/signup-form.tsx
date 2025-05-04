@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
 
-import { useForm } from "@tanstack/react-form";
+import { useForm, useStore } from "@tanstack/react-form";
 import { signUp } from "@/server/actions";
 import { userSessionAtom } from "@/app/state";
 import { useAtom } from "jotai";
@@ -35,7 +35,6 @@ export function SignupForm({
         })
         .refine((value) => value.confirmPassword === value.password, {
           message: "Passwords do not match.",
-          path: ["confirmPassword"],
         }),
     },
     onSubmit: async ({ value }) => {
@@ -79,10 +78,13 @@ export function SignupForm({
                   onBlur={field.handleBlur}
                   onChange={onChange(field)}
                   id="email"
-                  type="email"
                   placeholder="m@example.com"
-                  required
                 />
+                {!field.state.meta.isValid && (
+                  <em className="text-red-400">
+                    {field.state.meta.errors.map((err) => err?.message)}
+                  </em>
+                )}
               </>
             )}
           />
@@ -97,10 +99,13 @@ export function SignupForm({
                   onBlur={field.handleBlur}
                   onChange={onChange(field)}
                   id="username"
-                  type="username"
                   placeholder="username"
-                  required
                 />
+                {!field.state.meta.isValid && (
+                  <em className="text-red-400">
+                    {field.state.meta.errors.map((err) => err?.message)}
+                  </em>
+                )}
               </>
             )}
           />
@@ -116,12 +121,16 @@ export function SignupForm({
                 <Input
                   id="password"
                   type="password"
-                  required
                   name={field.name}
                   value={field.state.value}
                   onBlur={field.handleBlur}
                   onChange={onChange(field)}
                 />
+                {!field.state.meta.isValid && (
+                  <em className="text-red-400">
+                    {field.state.meta.errors.map((err) => err?.message)}
+                  </em>
+                )}
               </>
             )}
           />
@@ -135,16 +144,21 @@ export function SignupForm({
                 <Input
                   id="confirm-password"
                   type="password"
-                  required
                   name={field.name}
                   value={field.state.value}
                   onBlur={field.handleBlur}
                   onChange={onChange(field)}
                 />
+                {!field.state.meta.isValid && (
+                  <em className="text-red-400">
+                    {field.state.meta.errors.map((err) => err?.message)}
+                  </em>
+                )}
               </>
             )}
           />
         </div>
+
         <Button type="submit" className="w-full">
           Sign up
         </Button>

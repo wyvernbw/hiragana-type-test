@@ -15,7 +15,7 @@ export const createTable = pgTableCreator((name) => `hiragana-rewrite_${name}`);
 export const usersTable = createTable("users", (d) => ({
   id: d.text().primaryKey().notNull(),
   username: d.text().notNull(),
-  email: d.text().notNull(),
+  email: d.text().notNull().unique(),
   password: d.text().notNull(),
 }));
 
