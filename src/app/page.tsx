@@ -174,7 +174,11 @@ const LetterList = () => {
           if (idx > currentTest.input.length) {
             return "next";
           }
-          const match = hiraganaMatch(currentTest.input[idx], el);
+          const letter = currentTest.input[idx];
+          if (!letter) {
+            return "next";
+          }
+          const match = hiraganaMatch(letter, el);
           if (match === "true") {
             // Character has been typed
             return "correct";
