@@ -25,6 +25,7 @@ export const sessionsTable = createTable("sessions", (d) => ({
     .text()
     .notNull()
     .references(() => usersTable.id),
+  lastUsed: d.date().defaultNow(),
 }));
 
 export const usersRelations = relations(usersTable, ({ many }) => ({

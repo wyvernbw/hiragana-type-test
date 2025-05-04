@@ -19,6 +19,7 @@ import {
   currentTestAtom,
   testStateAtom,
   updateTestAtom,
+  userSessionAtom,
 } from "./state";
 import { KeyboardPreview } from "@/components/keyboard-preview";
 import { Letter, type LetterState } from "@/components/letter";
@@ -29,8 +30,33 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { ResultsDrawer } from "@/components/results-drawer";
 import { Skeleton } from "@/components/ui/skeleton";
 import { UserDropdown } from "@/components/user-dropdown";
+import {
+  QueryClient,
+  QueryClientProvider,
+  useMutation,
+  useQuery,
+} from "@tanstack/react-query";
+import { refreshSession } from "@/server/actions";
 
 export default function Page() {
+  const [userSession, setUserSession] = useAtom(userSessionAtom);
+  const sessionMutation = useMutation({
+    mutationFn: async () => {
+      if (!userSession) {
+        return;
+      }
+      const res = await refreshSession(userSession.id);
+      console.log(res);
+      if (res === "invalid-id") {
+        setUserSession(undefined);
+      }
+    },
+    mutationKey: [userSession?.id ?? ""],
+    retry: 3,
+  });
+  useEffect(() => {
+    sessionMutation.mutate();
+  }, []);
   const [, setCurrentTest] = useAtom(updateTestAtom);
   const [commandPaletteOpen] = useAtom(commandPaletteOpenAtom);
   const [commandPaletteState, setCommandPaletteState] = useAtom(

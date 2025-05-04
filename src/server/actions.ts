@@ -4,7 +4,7 @@ import * as argon2 from "argon2";
 import { nanoid } from "nanoid";
 import { db } from "./db";
 import { sessionsTable, usersTable } from "./db/schema";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { signupSchema, type SignupParams } from "./types";
 
 const sessionsSchema = z.object({
@@ -142,3 +142,18 @@ export const login = async (loginParams: {
 };
 
 export type UserSession = Awaited<ReturnType<typeof querySession>>;
+
+export const refreshSession = async (sessionId: string) => {
+  const res = await db
+    .update(sessionsTable)
+    .set({
+      lastUsed: sql`now()`,
+    })
+    .where(eq(sessionsTable.id, sessionId))
+    .returning();
+  if (res.length === 0) {
+    return "invalid-id";
+  } else {
+    return "success";
+  }
+};

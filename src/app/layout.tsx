@@ -1,8 +1,10 @@
 import { ThemeProvider } from "@/components/theme-provider";
 import "@/styles/globals.css";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import { type Metadata } from "next";
 import { Geist } from "next/font/google";
+import Providers from "./providers";
 
 export const metadata: Metadata = {
   title: "Create T3 App",
@@ -21,14 +23,16 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${geist.variable}`} suppressHydrationWarning>
       <body>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          {children}
-        </ThemeProvider>
+        <Providers>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            {children}
+          </ThemeProvider>
+        </Providers>
       </body>
     </html>
   );
