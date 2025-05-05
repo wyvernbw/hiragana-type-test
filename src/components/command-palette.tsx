@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Command,
   CommandDialog,
@@ -7,13 +9,18 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
-import { commandPaletteStateAtom, settingsAtom } from "@/app/state";
+import {
+  commandPaletteOpenAtom,
+  commandPaletteStateAtom,
+  settingsAtom,
+} from "@/app/state";
 import { atom, useAtom } from "jotai";
 import { CommandIcon, Moon, Sun } from "lucide-react";
 
 import React, { useEffect, useState } from "react";
 import { useTheme } from "next-themes";
 import { z } from "zod";
+import { Button } from "./ui/button";
 
 type Props = React.ComponentProps<typeof CommandDialog>;
 
@@ -22,8 +29,28 @@ type Subcommand = "none" | "theme" | "word-count";
 const subcommandAtom = atom<Subcommand>("none");
 
 const Palette = ({ children, ...props }: Props) => {
+  const [, setCommandPaletteState] = useAtom(commandPaletteStateAtom);
+  const [commandPaletteOpen] = useAtom(commandPaletteOpenAtom);
+
+  useEffect(() => {
+    const handleKeydown = (event: KeyboardEvent) => {
+      if (
+        event.key === "p" ||
+        (event.key == "P" && (event.metaKey || event.ctrlKey))
+      ) {
+        event.preventDefault();
+
+        setCommandPaletteState("open");
+      }
+    };
+    window.addEventListener("keydown", handleKeydown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeydown);
+    };
+  }, []);
   return (
-    <CommandDialog {...props}>
+    <CommandDialog {...props} open={props.open ?? commandPaletteOpen}>
       <Command className="">
         <div className="bg-primary text-background flex items-center gap-2 px-4 py-3 font-mono text-xs font-semibold">
           <div className="outline-background flex items-center gap-3 rounded px-2 outline">
@@ -152,5 +179,14 @@ const WordCountCommand = ({ ...props }: Props) => {
         />
       </Command>
     </CommandDialog>
+  );
+};
+
+export const CommandPaletteButton = () => {
+  const [, setCommandPaletteState] = useAtom(commandPaletteStateAtom);
+  return (
+    <Button variant="outline" onClick={() => setCommandPaletteState("open")}>
+      <CommandIcon />P
+    </Button>
   );
 };

@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Drawer,
   DrawerContent,
@@ -8,7 +10,13 @@ import {
 } from "@/components/ui/drawer";
 import { Button } from "./ui/button";
 import { useAtom } from "jotai";
-import { accuracyAtom, currentTestAtom, textAtom, wpmAtom } from "@/app/state";
+import {
+  accuracyAtom,
+  currentTestAtom,
+  testStateAtom,
+  textAtom,
+  wpmAtom,
+} from "@/app/state";
 import { useResetAtom } from "jotai/utils";
 import { useEffect } from "react";
 
@@ -18,14 +26,15 @@ export const ResultsDrawer = ({ ...props }: Props) => {
   const [accuracy] = useAtom(accuracyAtom);
   const resetTest = useResetAtom(currentTestAtom);
   const [currentTest] = useAtom(currentTestAtom);
-  const [{ refetch }] = useAtom(textAtom);
   const [wpm] = useAtom(wpmAtom);
+  const [testState] = useAtom(testStateAtom);
   useEffect(() => {
     console.log(currentTest);
   }, [currentTest]);
   return (
     <Drawer
       {...props}
+      open={props.open ?? testState === "done"}
       onClose={async () => {
         resetTest();
         // setCurrentTest({
@@ -38,7 +47,6 @@ export const ResultsDrawer = ({ ...props }: Props) => {
         //   startTime: Date.now(),
         //   endTime: Date.now()
         // });
-        await refetch();
       }}
     >
       <DrawerContent className="min-h-1/2">

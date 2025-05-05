@@ -1,3 +1,5 @@
+"use client";
+
 import {
   DropdownMenuContent,
   DropdownMenuItem,
@@ -18,6 +20,7 @@ export const UserDropdown = () => {
   const [userSession, setUserSession] = useAtom(userSessionAtom);
 
   const LoggedIn = () => {
+    "use client";
     return (
       <>
         <DropdownMenuLabel>{userSession?.user.username}</DropdownMenuLabel>

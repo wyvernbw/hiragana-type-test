@@ -1,9 +1,11 @@
 "use client";
 
-import type { HTMLAttributes } from "react";
-import { hiraganaToRomaji } from "@/lib/hiragana";
+import { Suspense, type HTMLAttributes } from "react";
+import { hiraganaMatch, hiraganaToRomaji } from "@/lib/hiragana";
 
 import { twMerge } from "tailwind-merge";
+import { useAtom, useAtomValue } from "jotai";
+import { currentTestAtom, textAtom } from "@/app/state";
 
 export type LetterState = {
   text: string;
@@ -48,6 +50,47 @@ export const Letter = ({
     <div className={className} {...rest}>
       <span className={charClassName}>{text}</span>
       <span className={hintClassName}>{hintChar === " " ? "␣" : hintChar}</span>
+    </div>
+  );
+};
+
+export const LetterList = () => {
+  const text = useAtomValue(textAtom).data;
+  const [currentTest] = useAtom(currentTestAtom);
+
+  return (
+    <div>
+      {[...text].map((el, idx) => {
+        const state = (): LetterState["state"] => {
+          if (idx > currentTest.input.length) {
+            return "next";
+          }
+          const letter = currentTest.input[idx];
+          if (!letter) {
+            return "next";
+          }
+          const match = hiraganaMatch(letter, el);
+          if (match === "true") {
+            // Character has been typed
+            return "correct";
+          } else if (idx === currentTest.input.length) {
+            // Current character
+            return "current";
+          } else if (match === "false") {
+            return "wrong";
+          } else if (match === "partial") {
+            return "partial";
+          }
+          return "next";
+        };
+        const text = () => {
+          if (state() === "wrong" && currentTest.input[idx]) {
+            return currentTest.input[idx];
+          }
+          return el;
+        };
+        return <Letter text={text()} state={state()} key={el + idx} />;
+      })}
     </div>
   );
 };

@@ -1,8 +1,18 @@
 "use client";
 
+import { useSessionRefresh } from "@/app/hooks";
+import { testStateAtom, textAtom, updateTestAtom } from "@/app/state";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import type React from "react";
 
-import { useState, type ChangeEvent, type RefObject } from "react";
+import {
+  Suspense,
+  useEffect,
+  useRef,
+  useState,
+  type ChangeEvent,
+  type RefObject,
+} from "react";
 
 interface InputProps extends React.HTMLAttributes<HTMLInputElement> {
   label?: string;
@@ -14,20 +24,22 @@ interface InputProps extends React.HTMLAttributes<HTMLInputElement> {
 }
 
 export default function JapaneseInput({
-  disabled = false,
+  disabled,
   label,
   helperText,
   error,
   className,
   fullWidth = false,
-  ref,
   onChange,
   children,
   onCompositionEnd,
   ...props
 }: InputProps) {
+  useSessionRefresh();
   // We'll still track composition state for potential edge cases
+  const text = useAtomValue(textAtom);
   const [, setIsComposing] = useState(false);
+  const [, setCurrentTest] = useAtom(updateTestAtom);
 
   // Handle composition start
   const handleCompositionStart = () => {
@@ -51,36 +63,76 @@ export default function JapaneseInput({
     }
   };
 
-  return (
-    <div className="bg-muted/50 relative my-4 max-h-[250px] min-h-[200px] overflow-hidden rounded-md border p-4 font-mono text-lg">
-      {label && (
-        <label
-          className="text-foreground text-sm font-medium"
-          htmlFor={props.id}
-        >
-          {label}
-        </label>
-      )}
-      <div className="absolute top-0 left-0 h-full w-full bg-linear-to-t from-stone-900/2 to-stone-900/0 leading-relaxed dark:from-stone-900/60"></div>
-      <input
-        disabled={disabled}
-        ref={ref}
-        className="absolute inset-0 h-full w-full cursor-text opacity-0"
-        autoComplete="off"
-        autoCapitalize="none"
-        autoCorrect="off"
-        spellCheck="false"
-        onChange={handleChange}
-        onCompositionStart={handleCompositionStart}
-        onCompositionEnd={handleCompositionEnd}
-        {...props}
-      />
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [testState] = useAtom(testStateAtom);
 
-      {children}
-      {helperText && !error && (
-        <p className="text-muted-foreground text-xs">{helperText}</p>
-      )}
-      {error && <p className="text-destructive text-xs">{error}</p>}
-    </div>
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, []);
+
+  useEffect(() => {
+    if (testState === "not-started" && inputRef.current) {
+      inputRef.current.value = "";
+    }
+  }, [testState]);
+
+  return (
+    <Suspense>
+      <div className="bg-muted/50 relative my-4 max-h-[250px] min-h-[200px] overflow-hidden rounded-md border p-4 font-mono text-lg">
+        {label && (
+          <label
+            className="text-foreground text-sm font-medium"
+            htmlFor={props.id}
+          >
+            {label}
+          </label>
+        )}
+        <div className="absolute top-0 left-0 h-full w-full bg-linear-to-t from-stone-900/2 to-stone-900/0 leading-relaxed dark:from-stone-900/60"></div>
+        <input
+          disabled={disabled ?? testState === "done"}
+          ref={inputRef}
+          className="absolute inset-0 h-full w-full cursor-text opacity-0"
+          autoComplete="off"
+          autoCapitalize="none"
+          autoCorrect="off"
+          spellCheck="false"
+          onCompositionStart={handleCompositionStart}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              setCurrentTest((prev) => ({
+                ...prev,
+                pressedEnter: true,
+              }));
+            }
+          }}
+          onCompositionEnd={(e) => {
+            handleCompositionEnd(e);
+            setCurrentTest((prev) => ({
+              ...prev,
+              pressedEnter: true,
+            }));
+          }}
+          onChange={(e) => {
+            handleChange(e);
+            const input = e.currentTarget.value;
+            console.log(e.currentTarget.value);
+            setCurrentTest((prev) => ({
+              ...prev,
+              input,
+              pressedEnter: false,
+            }));
+          }}
+          {...props}
+        />
+
+        {children}
+        {helperText && !error && (
+          <p className="text-muted-foreground text-xs">{helperText}</p>
+        )}
+        {error && <p className="text-destructive text-xs">{error}</p>}
+      </div>
+    </Suspense>
   );
 }

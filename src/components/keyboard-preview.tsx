@@ -1,14 +1,17 @@
+"use client";
+
 import { useAtomValue } from "jotai";
 import { keyboardLayout, hiraganaMatch } from "@/lib/hiragana";
 
 import { twMerge } from "tailwind-merge";
 import { Keyboard, Space } from "lucide-react";
-import { nextKeyAtom } from "@/app/state";
+import { nextKeyAtom, textAtom } from "@/app/state";
 
-type InputProps = React.HTMLAttributes<HTMLInputElement>;
+type InputProps = React.HTMLAttributes<HTMLInputElement> & {};
 
 export const KeyboardPreview = ({ className }: InputProps) => {
   const nextKey = useAtomValue(nextKeyAtom);
+  const text = useAtomValue(textAtom).data;
   return (
     <div className={twMerge("mt-6 mb-2 flex flex-col", className)}>
       <h4 className="mb-2 flex items-center gap-2 text-sm">

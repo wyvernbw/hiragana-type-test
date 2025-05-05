@@ -1,9 +1,9 @@
 import { randomWords } from "@/app/client/api";
 import { atom, type ExtractAtomValue } from "jotai";
 import { atomWithSuspenseQuery } from "jotai-tanstack-query";
-import { atomWithDefault, atomWithStorage } from "jotai/utils";
+import { atomWithDefault, atomWithStorage, loadable } from "jotai/utils";
 import { hiraganaMatch, jpSpace, splitKanaDakuten } from "@/lib/hiragana";
-import { querySession, type UserSession } from "@/server/actions";
+import { type UserSession } from "@/server/actions";
 
 type Test = Awaited<ExtractAtomValue<typeof currentTestAtom>>;
 
@@ -21,39 +21,47 @@ export const textAtom = atomWithSuspenseQuery((get) => {
   };
 });
 
-export const currentTestAtom = atomWithDefault(async (get) => {
-  const { data: text } = await get(textAtom);
-  return {
+// export const textAtom = atom(async (get) => {
+//   const wordCount = get(settingsAtom).wordCount;
+//   const data = await randomWords(wordCount);
+//   return { data };
+// });
+
+const textAtomLoadable = loadable(textAtom);
+
+export const currentTestAtom = atomWithDefault((get) => {
+  const text = get(textAtomLoadable);
+  const res = {
     errors: 0,
     totalErrors: 0,
     totalKeystrokes: 0,
-    text: text ?? "",
     input: "",
     pressedEnter: false,
     startTime: Date.now(),
     endTime: Date.now(),
+    text: "",
   };
+  if (text.state === "hasData") {
+    return {
+      ...res,
+      text: text.data.data,
+    };
+  }
+  return res;
 });
 
 export const updateTestAtom = atom(
   null,
-  (_get, set, value: (prev: Test) => Partial<Test>) => {
-    set(currentTestAtom, async (prevPromise) => {
-      const prev = await prevPromise;
+  (get, set, value: (prev: Test) => Partial<Test>) => {
+    const text = get(textAtomLoadable);
+    set(currentTestAtom, (prev) => {
       const newValue = value(prev);
       if (!newValue.input) {
         return { ...prev, ...newValue };
       }
-      const errors = [...newValue.input].reduce(
-        (acc, el, idx) => (el === prev.text[idx] ? acc : acc + 1),
-        0,
-      );
-      return {
+      const res = {
         ...prev,
         ...newValue,
-        errors,
-        totalErrors:
-          errors > prev.errors ? prev.totalErrors + 1 : prev.totalErrors,
         totalKeystrokes:
           newValue.input.length > prev.input.length
             ? prev.totalKeystrokes + 1
@@ -64,12 +72,25 @@ export const updateTestAtom = atom(
             : prev.startTime,
         endTime: Date.now(),
       };
+      if (text.state === "hasData") {
+        const errors = [...newValue.input].reduce(
+          (acc, el, idx) => (el === text.data.data[idx] ? acc : acc + 1),
+          0,
+        );
+        return {
+          ...res,
+          errors,
+          totalErrors:
+            errors > prev.errors ? prev.totalErrors + 1 : prev.totalErrors,
+        };
+      }
+      return res;
     });
   },
 );
 
-export const accuracyAtom = atom(async (get) => {
-  const test = await get(currentTestAtom);
+export const accuracyAtom = atom((get) => {
+  const test = get(currentTestAtom);
   return (
     (Math.max(0, test.totalKeystrokes - test.totalErrors) /
       test.totalKeystrokes) *
@@ -77,19 +98,19 @@ export const accuracyAtom = atom(async (get) => {
   ).toFixed(1);
 });
 
-export const timeElapsedAtom = atom(async (get) => {
-  const test = await get(currentTestAtom);
+export const timeElapsedAtom = atom((get) => {
+  const test = get(currentTestAtom);
   return (test.endTime - test.startTime) / 1000;
 });
 
-export const wpmAtom = atom(async (get) => {
-  const test = await get(currentTestAtom);
-  const time = await get(timeElapsedAtom);
+export const wpmAtom = atom((get) => {
+  const test = get(currentTestAtom);
+  const time = get(timeElapsedAtom);
   return ((test.totalKeystrokes - test.errors) / 5 / (time / 60)).toFixed(1);
 });
 
-export const testStateAtom = atom(async (get) => {
-  const test = await get(currentTestAtom);
+export const testStateAtom = atom((get) => {
+  const test = get(currentTestAtom);
   if (test.input === "") return "not-started";
   if (test.input.length < test.text.length) return "started";
   // handle dakuon on last letter case
@@ -99,17 +120,17 @@ export const testStateAtom = atom(async (get) => {
   return "started";
 });
 
-export const currentMatchAtom = atom(async (get) => {
-  const test = await get(currentTestAtom);
+export const currentMatchAtom = atom((get) => {
+  const test = get(currentTestAtom);
   const idx = Math.max(0, test.input.length - 1);
   if (!test.input[idx]) return "false";
   if (!test.text[idx]) return "false";
   return hiraganaMatch(test.input[idx], test.text[idx]);
 });
 
-export const nextKeyAtom = atom(async (get) => {
-  const test = await get(currentTestAtom);
-  const currentMatch = await get(currentMatchAtom);
+export const nextKeyAtom = atom((get) => {
+  const test = get(currentTestAtom);
+  const currentMatch = get(currentMatchAtom);
   const idx = Math.max(0, test.input.length);
   const current = test.text[idx];
   if (!current) return "";
