@@ -3,6 +3,7 @@ const config = {
   experimental: {
     reactCompiler: true,
     ppr: "incremental",
+    dynamicIO: true,
   },
 };
 

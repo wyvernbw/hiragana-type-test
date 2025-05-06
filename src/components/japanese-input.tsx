@@ -1,7 +1,9 @@
 "use client";
 
+import { randomWords } from "@/app/client/api";
 import { useSessionRefresh } from "@/app/hooks";
-import { testStateAtom, textAtom, updateTestAtom } from "@/app/state";
+import { settingsAtom, testStateAtom, textAtom, updateTestAtom } from "@/app/state";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import type React from "react";
 
@@ -13,6 +15,7 @@ import {
   type ChangeEvent,
   type RefObject,
 } from "react";
+import { Skeleton } from "./ui/skeleton";
 
 interface InputProps extends React.HTMLAttributes<HTMLInputElement> {
   label?: string;
@@ -37,7 +40,8 @@ export default function JapaneseInput({
 }: InputProps) {
   useSessionRefresh();
   // We'll still track composition state for potential edge cases
-  const text = useAtomValue(textAtom);
+  const [text, setText] = useAtom(textAtom);
+  const [settings,] = useAtom(settingsAtom);
   const [, setIsComposing] = useState(false);
   const [, setCurrentTest] = useAtom(updateTestAtom);
 
@@ -78,61 +82,68 @@ export default function JapaneseInput({
     }
   }, [testState]);
 
+
   return (
-    <Suspense>
-      <div className="bg-muted/50 relative my-4 max-h-[250px] min-h-[200px] overflow-hidden rounded-md border p-4 font-mono text-lg">
-        {label && (
-          <label
-            className="text-foreground text-sm font-medium"
-            htmlFor={props.id}
-          >
-            {label}
-          </label>
-        )}
-        <div className="absolute top-0 left-0 h-full w-full bg-linear-to-t from-stone-900/2 to-stone-900/0 leading-relaxed dark:from-stone-900/60"></div>
-        <input
-          disabled={disabled ?? testState === "done"}
-          ref={inputRef}
-          className="absolute inset-0 h-full w-full cursor-text opacity-0"
-          autoComplete="off"
-          autoCapitalize="none"
-          autoCorrect="off"
-          spellCheck="false"
-          onCompositionStart={handleCompositionStart}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              setCurrentTest((prev) => ({
-                ...prev,
-                pressedEnter: true,
-              }));
-            }
-          }}
-          onCompositionEnd={(e) => {
-            handleCompositionEnd(e);
+    <div className="bg-muted/50 relative my-4 max-h-[250px] min-h-[200px] overflow-hidden rounded-md border p-4 font-mono text-lg">
+      {label && (
+        <label
+          className="text-foreground text-sm font-medium"
+          htmlFor={props.id}
+        >
+          {label}
+        </label>
+      )}
+      <div className="absolute top-0 left-0 h-full w-full bg-linear-to-t from-stone-900/2 to-stone-900/0 leading-relaxed dark:from-stone-900/60"></div>
+      <input
+        disabled={disabled ?? testState === "done"}
+        ref={inputRef}
+        className="absolute inset-0 h-full w-full cursor-text opacity-0"
+        autoComplete="off"
+        autoCapitalize="none"
+        autoCorrect="off"
+        spellCheck="false"
+        onCompositionStart={handleCompositionStart}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
             setCurrentTest((prev) => ({
               ...prev,
               pressedEnter: true,
             }));
-          }}
-          onChange={(e) => {
-            handleChange(e);
-            const input = e.currentTarget.value;
-            console.log(e.currentTarget.value);
-            setCurrentTest((prev) => ({
-              ...prev,
-              input,
-              pressedEnter: false,
-            }));
-          }}
-          {...props}
-        />
+          }
+        }}
+        onCompositionEnd={(e) => {
+          handleCompositionEnd(e);
+          setCurrentTest((prev) => ({
+            ...prev,
+            pressedEnter: true,
+          }));
+        }}
+        onChange={(e) => {
+          handleChange(e);
+          const input = e.currentTarget.value;
+          console.log(e.currentTarget.value);
+          setCurrentTest((prev) => ({
+            ...prev,
+            input,
+            pressedEnter: false,
+          }));
+        }}
+        {...props}
+      />
 
+      <Suspense fallback={
+        <div className="flex flex-col gap-4">
+
+          <Skeleton className="w-full min-h-12 h-full" />
+          <Skeleton className="w-1/2 min-h-12 h-full" />
+        </div>
+      }>
         {children}
-        {helperText && !error && (
-          <p className="text-muted-foreground text-xs">{helperText}</p>
-        )}
-        {error && <p className="text-destructive text-xs">{error}</p>}
-      </div>
-    </Suspense>
+      </Suspense>
+      {helperText && !error && (
+        <p className="text-muted-foreground text-xs">{helperText}</p>
+      )}
+      {error && <p className="text-destructive text-xs">{error}</p>}
+    </div>
   );
 }

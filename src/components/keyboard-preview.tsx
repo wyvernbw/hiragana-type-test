@@ -32,17 +32,17 @@ export const KeyboardPreview = ({ className }: InputProps) => {
               const spaceHide = keyObj.key === "space" ? "hidden" : "";
               const homeRowStyle =
                 keyObj.key === "f" || keyObj.key === "j"
-                  ? "font-bold bg-primary text-background"
+                  ? "font-bold bg-primary/30 text-foreground"
                   : "";
 
               return (
                 <div
                   key={keyObj.key}
-                  className={`p-6 outline ${keyWidth} flex h-12 flex-col items-center justify-center rounded-md border ${
+                  className={`p-6 outline ${keyWidth} flex h-12 flex-col items-center justify-center rounded-md border transition ${
                     isNextKey
                       ? "bg-primary text-primary-foreground border-primary animate-pulse font-semibold"
                       : "bg-muted border-input"
-                  } ${homeRowStyle} `}
+                  } ${homeRowStyle}`}
                 >
                   <span className={`${isNextKey ? "font-bold" : ""}`}>
                     {keyObj.hiragana && (

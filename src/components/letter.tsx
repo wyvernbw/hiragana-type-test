@@ -1,11 +1,13 @@
 "use client";
 
-import { Suspense, type HTMLAttributes } from "react";
+import { type HTMLAttributes } from "react";
 import { hiraganaMatch, hiraganaToRomaji } from "@/lib/hiragana";
 
 import { twMerge } from "tailwind-merge";
 import { useAtom, useAtomValue } from "jotai";
-import { currentTestAtom, textAtom } from "@/app/state";
+import { currentTestAtom, settingsAtom, textAtom } from "@/app/state";
+import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
+import { randomWords } from "@/app/client/api";
 
 export type LetterState = {
   text: string;
@@ -55,8 +57,18 @@ export const Letter = ({
 };
 
 export const LetterList = () => {
-  const text = useAtomValue(textAtom).data;
+  const [{ data: text }, setText] = useAtom(textAtom);
   const [currentTest] = useAtom(currentTestAtom);
+  const [settings, ] = useAtom(settingsAtom);
+  useSuspenseQuery({
+    queryKey: ["randomWords", settings.wordCount],
+    queryFn: async () => {
+      const words = await randomWords(settings.wordCount);
+      setText({ data: words });
+      return words;
+    },
+    refetchInterval: false
+  })
 
   return (
     <div>

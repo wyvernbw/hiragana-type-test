@@ -4,6 +4,8 @@ import { atomWithSuspenseQuery } from "jotai-tanstack-query";
 import { atomWithDefault, atomWithStorage, loadable } from "jotai/utils";
 import { hiraganaMatch, jpSpace, splitKanaDakuten } from "@/lib/hiragana";
 import { type UserSession } from "@/server/actions";
+import { connection } from "next/server";
+
 
 type Test = Awaited<ExtractAtomValue<typeof currentTestAtom>>;
 
@@ -11,17 +13,21 @@ export const settingsAtom = atomWithStorage("settings", {
   wordCount: 5,
 });
 
-export const textAtom = atomWithSuspenseQuery((get) => {
-  const wordCount = get(settingsAtom).wordCount;
-  return {
-    queryKey: ["text", wordCount],
-    queryFn: async (_params) => {
-      return await randomWords(wordCount);
-    },
-  };
-});
+// export const textAtom = atomWithSuspenseQuery((get) => {
+//   const wordCount = get(settingsAtom).wordCount;
+//   return {
+//     queryKey: ["text", wordCount],
+//     queryFn: async (_params) => {
+//       console.log("RAN QUERY")
+//       return await randomWords(wordCount);
+//     },
+//   };
+// });
+
+export const textAtom = atom({data: ""});
 
 // export const textAtom = atom(async (get) => {
+//   await connection();
 //   const wordCount = get(settingsAtom).wordCount;
 //   const data = await randomWords(wordCount);
 //   return { data };
@@ -37,8 +43,8 @@ export const currentTestAtom = atomWithDefault((get) => {
     totalKeystrokes: 0,
     input: "",
     pressedEnter: false,
-    startTime: Date.now(),
-    endTime: Date.now(),
+    startTime: 0,
+    endTime: 0,
     text: "",
   };
   if (text.state === "hasData") {

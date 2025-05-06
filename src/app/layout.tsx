@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { type Metadata } from "next";
 import { Geist } from "next/font/google";
 import Providers from "./providers";
+import { Suspense } from "react";
 
 export const metadata: Metadata = {
   title: "Create T3 App",
@@ -17,14 +18,14 @@ const geist = Geist({
   variable: "--font-geist-sans",
 });
 
-export const experimental_ppr = true;
-
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${geist.variable}`} suppressHydrationWarning>
+    <html lang="en" className={`${geist.variable}`} suppressHydrationWarning >
       <body>
+        <Suspense>
+
         <Providers>
           <ThemeProvider
             attribute="class"
@@ -35,6 +36,7 @@ export default function RootLayout({
             {children}
           </ThemeProvider>
         </Providers>
+          </Suspense>
       </body>
     </html>
   );

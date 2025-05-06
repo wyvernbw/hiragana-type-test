@@ -17,17 +17,18 @@ import {
 import { ThemeToggle } from "@/components/theme-toggle";
 import { ResultsDrawer } from "@/components/results-drawer";
 import { UserDropdown } from "@/components/user-dropdown";
-import { Suspense } from "react";
+import { Suspense, type PropsWithChildren } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { randomWords } from "./client/api";
+import { ClientHydrateRandomWords } from "./providers";
 
 export default function Page() {
   return (
-    <div className="flex min-h-screen w-screen flex-col items-center md:justify-center">
+    <div className="flex p-10 h-screen w-screen flex-col items-center md:justify-center">
       <Suspense fallback={<Skeleton />}>
         <CommandPalette />
-        <ResultsDrawer />
       </Suspense>
-      <Card className="w-full max-w-[800px]">
+      <Card className="w-3/4 h-full flex">
         <CardHeader>
           <CardTitle className="flex scroll-m-20 justify-between border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0">
             🍛 Karē
@@ -41,8 +42,9 @@ export default function Page() {
           </CardTitle>
           <CardDescription>Type the hiragana characters below.</CardDescription>
         </CardHeader>
-        <CardContent>
-          <Suspense fallback={<TestFallback />}>
+        <CardContent className="flex flex-col w-full h-full">
+          <Suspense fallback={<Skeleton className="h-full w-full" />}>
+            <ResultsDrawer />
             <div className="">
               <JapaneseInput className="bg-muted/50 relative my-4 flex max-h-[200px] rounded-md border p-4 font-mono text-lg">
                 <LetterList />
@@ -60,3 +62,6 @@ export default function Page() {
 const TestFallback = () => {
   return <div style={{ color: "red" }}>LOADING</div>;
 };
+
+
+

@@ -10,6 +10,9 @@ import {
 import * as jotai from "jotai";
 
 import { ReactQueryStreamedHydration } from "@tanstack/react-query-next-experimental";
+import type { PropsWithChildren } from "react";
+import { useHydrateAtoms } from "jotai/utils";
+import { textAtom } from "./state";
 
 function makeQueryClient() {
   return new QueryClient({
@@ -48,9 +51,16 @@ export default function Providers({ children }: { children: React.ReactNode }) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <ReactQueryStreamedHydration>
         <jotai.Provider>{children}</jotai.Provider>
-      </ReactQueryStreamedHydration>
     </QueryClientProvider>
   );
+}
+
+export const ClientHydrateRandomWords = ({ children, words }: PropsWithChildren<{
+  words: string,
+}>) => {
+  useHydrateAtoms([[
+    textAtom, { data: words }
+  ]] as const);
+  return <>{children}</>
 }
