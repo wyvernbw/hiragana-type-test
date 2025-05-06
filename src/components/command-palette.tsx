@@ -12,9 +12,10 @@ import {
 import {
   commandPaletteOpenAtom,
   commandPaletteStateAtom,
+  randomizeRangeAtom,
   settingsAtom,
 } from "@/app/state";
-import { atom, useAtom } from "jotai";
+import { atom, useAtom, useSetAtom } from "jotai";
 import { CommandIcon, Moon, Sun } from "lucide-react";
 
 import React, { useEffect, useState } from "react";
@@ -143,6 +144,7 @@ const WordCountCommand = ({ ...props }: Props) => {
   const [, setSubcommand] = useAtom(subcommandAtom);
   const [, setCommandPaletteState] = useAtom(commandPaletteStateAtom);
   const [settings, setSettings] = useAtom(settingsAtom);
+  const randomize = useSetAtom(randomizeRangeAtom)
   const schema = z.number().int().min(1).max(100);
   const [inputState, setInputState] = useState(
     schema.safeParse(settings.wordCount),
@@ -167,6 +169,7 @@ const WordCountCommand = ({ ...props }: Props) => {
                   ...prev,
                   wordCount: inputState.data,
                 }));
+                randomize()
                 setSubcommand("none");
                 setCommandPaletteState("closed");
               }

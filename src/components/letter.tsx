@@ -1,11 +1,11 @@
 "use client";
 
-import { type HTMLAttributes } from "react";
+import { useEffect, type HTMLAttributes } from "react";
 import { hiraganaMatch, hiraganaToRomaji } from "@/lib/hiragana";
 
 import { twMerge } from "tailwind-merge";
-import { useAtom, useAtomValue } from "jotai";
-import { currentTestAtom, settingsAtom, textAtom } from "@/app/state";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import { currentTestAtom, randomizeRangeAtom, settingsAtom, textAtom } from "@/app/state";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { randomWords } from "@/app/client/api";
 
@@ -57,22 +57,17 @@ export const Letter = ({
 };
 
 export const LetterList = () => {
-  const [{ data: text }, setText] = useAtom(textAtom);
   const [currentTest] = useAtom(currentTestAtom);
   const [settings, ] = useAtom(settingsAtom);
-  useSuspenseQuery({
-    queryKey: ["randomWords", settings.wordCount],
-    queryFn: async () => {
-      const words = await randomWords(settings.wordCount);
-      setText({ data: words });
-      return words;
-    },
-    refetchInterval: false
-  })
+
+  const randomize = useSetAtom(randomizeRangeAtom);
+  useEffect(() => {
+    randomize()
+  }, [])
 
   return (
     <div>
-      {[...text].map((el, idx) => {
+      {[...currentTest.text].map((el, idx) => {
         const state = (): LetterState["state"] => {
           if (idx > currentTest.input.length) {
             return "next";

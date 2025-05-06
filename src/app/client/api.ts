@@ -7,7 +7,7 @@ const wordListSchema = z.object({
 
 export const randomWords = async (count: number) => {
   const res = await fetch(
-    "https://raw.githubusercontent.com/monkeytypegame/monkeytype/refs/heads/master/frontend/static/languages/japanese_hiragana.json", { cache: "no-store"}
+    "https://raw.githubusercontent.com/monkeytypegame/monkeytype/refs/heads/master/frontend/static/languages/japanese_hiragana.json",
   )
     .then((res) => res.json())
     .then((res) => wordListSchema.parse(res));

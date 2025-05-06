@@ -24,7 +24,24 @@ export const settingsAtom = atomWithStorage("settings", {
 //   };
 // });
 
-export const textAtom = atom({data: ""});
+export const allWordsAtom = atom([""]);
+export const wordRangeAtom = atom({start: 0, end: 0});
+
+export const textAtom = atom((get) => {
+  const words = get(allWordsAtom);
+  const wordCount = get(settingsAtom).wordCount;
+  const {start, end} = get(wordRangeAtom);
+  if (words.length < wordCount) return words.join(jpSpace);
+  return words.slice(start, end).join(jpSpace)
+})
+
+export const randomizeRangeAtom = atom(null, (get, set) => {
+  const words = get(allWordsAtom);
+  const wordCount = get(settingsAtom).wordCount;
+  const start = Math.floor(Math.random() * (words.length - wordCount))
+  const end = start + wordCount;
+  set(wordRangeAtom, {start, end});
+})
 
 // export const textAtom = atom(async (get) => {
 //   await connection();
@@ -36,7 +53,7 @@ export const textAtom = atom({data: ""});
 const textAtomLoadable = loadable(textAtom);
 
 export const currentTestAtom = atomWithDefault((get) => {
-  const text = get(textAtomLoadable);
+  const text = get(textAtom);
   const res = {
     errors: 0,
     totalErrors: 0,
@@ -47,19 +64,16 @@ export const currentTestAtom = atomWithDefault((get) => {
     endTime: 0,
     text: "",
   };
-  if (text.state === "hasData") {
-    return {
-      ...res,
-      text: text.data.data,
-    };
-  }
-  return res;
+  return {
+    ...res,
+    text: text,
+  };
 });
 
 export const updateTestAtom = atom(
   null,
   (get, set, value: (prev: Test) => Partial<Test>) => {
-    const text = get(textAtomLoadable);
+    const text = get(textAtom);
     set(currentTestAtom, (prev) => {
       const newValue = value(prev);
       if (!newValue.input) {
@@ -78,19 +92,16 @@ export const updateTestAtom = atom(
             : prev.startTime,
         endTime: Date.now(),
       };
-      if (text.state === "hasData") {
-        const errors = [...newValue.input].reduce(
-          (acc, el, idx) => (el === text.data.data[idx] ? acc : acc + 1),
-          0,
-        );
-        return {
-          ...res,
-          errors,
-          totalErrors:
-            errors > prev.errors ? prev.totalErrors + 1 : prev.totalErrors,
-        };
-      }
-      return res;
+      const errors = [...newValue.input].reduce(
+        (acc, el, idx) => (el === text[idx] ? acc : acc + 1),
+        0,
+      );
+      return {
+        ...res,
+        errors,
+        totalErrors:
+          errors > prev.errors ? prev.totalErrors + 1 : prev.totalErrors,
+      };
     });
   },
 );

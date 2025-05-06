@@ -21,8 +21,10 @@ import { Suspense, type PropsWithChildren } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { randomWords } from "./client/api";
 import { ClientHydrateRandomWords } from "./providers";
+import { z } from "zod";
+import { TypeApp } from "./app";
 
-export default function Page() {
+export default async function Page() {
   return (
     <div className="flex p-10 h-screen w-screen flex-col items-center md:justify-center">
       <Suspense fallback={<Skeleton />}>
@@ -44,19 +46,25 @@ export default function Page() {
         </CardHeader>
         <CardContent className="flex flex-col w-full h-full">
           <Suspense fallback={<Skeleton className="h-full w-full" />}>
-            <ResultsDrawer />
-            <div className="">
-              <JapaneseInput className="bg-muted/50 relative my-4 flex max-h-[200px] rounded-md border p-4 font-mono text-lg">
-                <LetterList />
-              </JapaneseInput>
-            </div>
-            <KeyboardPreview className="hidden md:flex" />
+            <App/>
           </Suspense>
         </CardContent>
         <CardFooter></CardFooter>
       </Card>
     </div>
   );
+}
+
+const App = async ({ children }: PropsWithChildren<{}>) => {
+  const wordListSchema = z.object({
+    words: z.array(z.string()),
+  });
+  const words = await fetch(
+    "https://raw.githubusercontent.com/monkeytypegame/monkeytype/refs/heads/master/frontend/static/languages/japanese_hiragana.json",
+  )
+    .then((res) => res.json())
+    .then((res) => wordListSchema.parse(res).words);
+  return <TypeApp words={words} />;
 }
 
 const TestFallback = () => {

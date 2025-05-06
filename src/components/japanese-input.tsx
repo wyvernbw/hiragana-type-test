@@ -133,9 +133,7 @@ export default function JapaneseInput({
 
       <Suspense fallback={
         <div className="flex flex-col gap-4">
-
           <Skeleton className="w-full min-h-12 h-full" />
-          <Skeleton className="w-1/2 min-h-12 h-full" />
         </div>
       }>
         {children}
