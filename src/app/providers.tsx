@@ -51,16 +51,8 @@ export default function Providers({ children }: { children: React.ReactNode }) {
 
   return (
     <QueryClientProvider client={queryClient}>
-        <jotai.Provider>{children}</jotai.Provider>
+      <jotai.Provider>{children}</jotai.Provider>
     </QueryClientProvider>
   );
 }
 
-export const ClientHydrateRandomWords = ({ children, words }: PropsWithChildren<{
-  words: string,
-}>) => {
-  useHydrateAtoms([[
-    textAtom, { data: words }
-  ]] as const);
-  return <>{children}</>
-}

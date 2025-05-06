@@ -7,20 +7,14 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-import JapaneseInput from "@/components/japanese-input";
-import { KeyboardPreview } from "@/components/keyboard-preview";
-import { LetterList } from "@/components/letter";
 import {
   CommandPalette,
   CommandPaletteButton,
 } from "@/components/command-palette";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { ResultsDrawer } from "@/components/results-drawer";
 import { UserDropdown } from "@/components/user-dropdown";
-import { Suspense, type PropsWithChildren } from "react";
+import { Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { randomWords } from "./client/api";
-import { ClientHydrateRandomWords } from "./providers";
 import { z } from "zod";
 import { TypeApp } from "./app";
 
@@ -55,7 +49,7 @@ export default async function Page() {
   );
 }
 
-const App = async ({ children }: PropsWithChildren<{}>) => {
+const App = async () => {
   const wordListSchema = z.object({
     words: z.array(z.string()),
   });
