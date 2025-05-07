@@ -12,6 +12,7 @@ import { userSessionAtom } from "@/app/state";
 import { useAtom } from "jotai";
 import { passwordSchema, signupSchema } from "@/server/types";
 import { redirect } from "next/navigation";
+import { Loader2 } from "lucide-react";
 
 const signupSchemaExtended = signupSchema
   .extend({
@@ -172,7 +173,12 @@ export function SignupForm({
           </form.Field>
         </div>
 
-        <Button type="submit" className="w-full">
+        <Button
+          disabled={form.state.isSubmitting}
+          type="submit"
+          className="w-full"
+        >
+          {form.state.isSubmitting && <Loader2 className="animate-spin" />}
           Sign up
         </Button>
       </div>

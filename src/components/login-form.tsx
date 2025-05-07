@@ -11,6 +11,8 @@ import { useAtom } from "jotai";
 import { userSessionAtom } from "@/app/state";
 import { z } from "zod";
 import { redirect } from "next/navigation";
+import { useFormStatus } from "react-dom";
+import { Loader2 } from "lucide-react";
 
 const loginSchema = z
   .object({
@@ -34,6 +36,7 @@ export function LoginForm({
   ...props
 }: React.ComponentProps<"form">) {
   const [, setUserSession] = useAtom(userSessionAtom);
+  const { pending } = useFormStatus();
   const form = useForm({
     defaultValues: {
       email: "",
@@ -123,7 +126,12 @@ export function LoginForm({
             )}
           </form.Field>
         </div>
-        <Button type="submit" className="w-full">
+        <Button
+          disabled={form.state.isSubmitting}
+          type="submit"
+          className="w-full"
+        >
+          {form.state.isSubmitting && <Loader2 className="animate-spin" />}
           Login
         </Button>
       </div>
