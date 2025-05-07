@@ -179,7 +179,7 @@ export const nextKeyAtom = atom((get) => {
   }
 
   if (hiraganaMatch(current, jpSpace) === "true") {
-    return test.pressedEnter ? jpSpace : "enter";
+    return test.pressedEnter ? jpSpace : "Enter";
   }
   const key = splitKanaDakuten(current);
   return key.base;

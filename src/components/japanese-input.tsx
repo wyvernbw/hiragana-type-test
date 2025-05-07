@@ -91,7 +91,7 @@ export default function JapaneseInput({
   return (
     <div
       className={twMerge(
-        "bg-muted/50 relative my-4 overflow-hidden rounded-md border p-4 font-mono text-lg",
+        "bg-muted/50 relative my-4 overflow-hidden rounded-md border p-4 text-lg",
         className,
       )}
     >

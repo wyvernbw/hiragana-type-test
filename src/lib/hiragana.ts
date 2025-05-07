@@ -203,9 +203,10 @@ export const keyboardLayout = [
     { key: "l", hiragana: "り" },
     { key: ";", hiragana: "れ" },
     { key: "'", hiragana: "け" },
-    { key: "enter", hiragana: "enter" },
+    { key: "enter", hiragana: "Enter" },
   ],
   [
+    { key: "shift", hiragana: "Shift" },
     { key: "z", hiragana: "つ" },
     { key: "x", hiragana: "さ" },
     { key: "c", hiragana: "そ" },
@@ -218,7 +219,7 @@ export const keyboardLayout = [
     { key: "/", hiragana: "め" },
   ],
   [{ key: "space", hiragana: "　" }],
-];
+] as const;
 
 type KanaSplitResult = {
   base: string;
