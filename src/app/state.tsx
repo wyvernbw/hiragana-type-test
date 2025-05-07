@@ -6,6 +6,14 @@ import { hiraganaMatch, jpSpace, splitKanaDakuten } from "@/lib/hiragana";
 import { type UserSession } from "@/server/actions";
 import { connection } from "next/server";
 
+function shuffleArray<T>(array: T[]): T[] {
+  const shuffled = [...array]; // copy to avoid mutating the original array
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j]!, shuffled[i]!]; // swap
+  }
+  return shuffled;
+}
 
 type Test = Awaited<ExtractAtomValue<typeof currentTestAtom>>;
 
@@ -25,23 +33,23 @@ export const settingsAtom = atomWithStorage("settings", {
 // });
 
 export const allWordsAtom = atom([""]);
-export const wordRangeAtom = atom({start: 0, end: 0});
+export const wordRangeAtom = atom({ start: 0, end: 0 });
 
 export const textAtom = atom((get) => {
   const words = get(allWordsAtom);
   const wordCount = get(settingsAtom).wordCount;
-  const {start, end} = get(wordRangeAtom);
+  const { start, end } = get(wordRangeAtom);
   if (words.length < wordCount) return words.join(jpSpace);
-  return words.slice(start, end).join(jpSpace)
-})
+  return shuffleArray(words.slice(start, end)).join(jpSpace);
+});
 
 export const randomizeRangeAtom = atom(null, (get, set) => {
   const words = get(allWordsAtom);
   const wordCount = get(settingsAtom).wordCount;
-  const start = Math.floor(Math.random() * (words.length - wordCount))
+  const start = Math.floor(Math.random() * (words.length - wordCount));
   const end = start + wordCount;
-  set(wordRangeAtom, {start, end});
-})
+  set(wordRangeAtom, { start, end });
+});
 
 // export const textAtom = atom(async (get) => {
 //   await connection();
@@ -131,7 +139,7 @@ export const testStateAtom = atom((get) => {
   if (test.input === "") return "not-started";
   if (test.input.length < test.text.length) return "started";
   // handle dakuon on last letter case
-  if (test.input.endsWith(test.text, test.text.length - 1)) {
+  if (test.input.length == test.text.length) {
     return "done";
   }
   return "started";

@@ -144,7 +144,7 @@ const WordCountCommand = ({ ...props }: Props) => {
   const [, setSubcommand] = useAtom(subcommandAtom);
   const [, setCommandPaletteState] = useAtom(commandPaletteStateAtom);
   const [settings, setSettings] = useAtom(settingsAtom);
-  const randomize = useSetAtom(randomizeRangeAtom)
+  const randomize = useSetAtom(randomizeRangeAtom);
   const schema = z.number().int().min(1).max(100);
   const [inputState, setInputState] = useState(
     schema.safeParse(settings.wordCount),
@@ -169,7 +169,7 @@ const WordCountCommand = ({ ...props }: Props) => {
                   ...prev,
                   wordCount: inputState.data,
                 }));
-                randomize()
+                randomize();
                 setSubcommand("none");
                 setCommandPaletteState("closed");
               }

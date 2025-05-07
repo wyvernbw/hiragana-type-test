@@ -17,14 +17,16 @@ import { Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { z } from "zod";
 import { TypeApp } from "./app";
+import { connection } from "next/server";
 
 export default async function Page() {
+  "use cache";
   return (
-    <div className="flex p-10 h-screen w-screen flex-col items-center md:justify-center">
+    <div className="flex h-screen w-screen flex-col items-center p-10 md:justify-center">
       <Suspense fallback={<Skeleton />}>
         <CommandPalette />
       </Suspense>
-      <Card className="w-3/4 h-full flex">
+      <Card className="flex h-full w-3/4">
         <CardHeader>
           <CardTitle className="flex scroll-m-20 justify-between border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0">
             🍛 Karē
@@ -38,9 +40,9 @@ export default async function Page() {
           </CardTitle>
           <CardDescription>Type the hiragana characters below.</CardDescription>
         </CardHeader>
-        <CardContent className="flex flex-col w-full h-full">
+        <CardContent className="flex h-full w-full flex-col overflow-hidden">
           <Suspense fallback={<Skeleton className="h-full w-full" />}>
-            <App/>
+            <App />
           </Suspense>
         </CardContent>
         <CardFooter></CardFooter>
@@ -55,15 +57,13 @@ const App = async () => {
   });
   const words = await fetch(
     "https://raw.githubusercontent.com/monkeytypegame/monkeytype/refs/heads/master/frontend/static/languages/japanese_hiragana.json",
+    { cache: "force-cache" },
   )
     .then((res) => res.json())
     .then((res) => wordListSchema.parse(res).words);
   return <TypeApp words={words} />;
-}
+};
 
 const TestFallback = () => {
   return <div style={{ color: "red" }}>LOADING</div>;
 };
-
-
-

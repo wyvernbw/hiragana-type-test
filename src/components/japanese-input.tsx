@@ -2,7 +2,12 @@
 
 import { randomWords } from "@/app/client/api";
 import { useSessionRefresh } from "@/app/hooks";
-import { settingsAtom, testStateAtom, textAtom, updateTestAtom } from "@/app/state";
+import {
+  settingsAtom,
+  testStateAtom,
+  textAtom,
+  updateTestAtom,
+} from "@/app/state";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import type React from "react";
@@ -16,6 +21,7 @@ import {
   type RefObject,
 } from "react";
 import { Skeleton } from "./ui/skeleton";
+import { twMerge } from "tailwind-merge";
 
 interface InputProps extends React.HTMLAttributes<HTMLInputElement> {
   label?: string;
@@ -41,7 +47,7 @@ export default function JapaneseInput({
   useSessionRefresh();
   // We'll still track composition state for potential edge cases
   const [text, setText] = useAtom(textAtom);
-  const [settings,] = useAtom(settingsAtom);
+  const [settings] = useAtom(settingsAtom);
   const [, setIsComposing] = useState(false);
   const [, setCurrentTest] = useAtom(updateTestAtom);
 
@@ -82,9 +88,13 @@ export default function JapaneseInput({
     }
   }, [testState]);
 
-
   return (
-    <div className="bg-muted/50 relative my-4 max-h-[250px] min-h-[200px] overflow-hidden rounded-md border p-4 font-mono text-lg">
+    <div
+      className={twMerge(
+        "bg-muted/50 relative my-4 overflow-hidden rounded-md border p-4 font-mono text-lg",
+        className,
+      )}
+    >
       {label && (
         <label
           className="text-foreground text-sm font-medium"
@@ -131,11 +141,13 @@ export default function JapaneseInput({
         {...props}
       />
 
-      <Suspense fallback={
-        <div className="flex flex-col gap-4">
-          <Skeleton className="w-full min-h-12 h-full" />
-        </div>
-      }>
+      <Suspense
+        fallback={
+          <div className="flex flex-col gap-4">
+            <Skeleton className="h-full min-h-12 w-full" />
+          </div>
+        }
+      >
         {children}
       </Suspense>
       {helperText && !error && (

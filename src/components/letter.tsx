@@ -5,9 +5,15 @@ import { hiraganaMatch, hiraganaToRomaji } from "@/lib/hiragana";
 
 import { twMerge } from "tailwind-merge";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
-import { currentTestAtom, randomizeRangeAtom, settingsAtom, textAtom } from "@/app/state";
+import {
+  currentTestAtom,
+  randomizeRangeAtom,
+  settingsAtom,
+  textAtom,
+} from "@/app/state";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { randomWords } from "@/app/client/api";
+import { Skeleton } from "./ui/skeleton";
 
 export type LetterState = {
   text: string;
@@ -58,46 +64,58 @@ export const Letter = ({
 
 export const LetterList = () => {
   const [currentTest] = useAtom(currentTestAtom);
-  const [settings, ] = useAtom(settingsAtom);
+  const [settings] = useAtom(settingsAtom);
 
   const randomize = useSetAtom(randomizeRangeAtom);
   useEffect(() => {
-    randomize()
-  }, [])
+    randomize();
+  }, []);
+
+  const List = () => {
+    return (
+      <>
+        {[...currentTest.text].map((el, idx) => {
+          const state = (): LetterState["state"] => {
+            if (idx > currentTest.input.length) {
+              return "next";
+            }
+            const letter = currentTest.input[idx];
+            if (!letter) {
+              return "next";
+            }
+            const match = hiraganaMatch(letter, el);
+            if (match === "true") {
+              // Character has been typed
+              return "correct";
+            } else if (idx === currentTest.input.length) {
+              // Current character
+              return "current";
+            } else if (match === "false") {
+              return "wrong";
+            } else if (match === "partial") {
+              return "partial";
+            }
+            return "next";
+          };
+          const text = () => {
+            if (state() === "wrong" && currentTest.input[idx]) {
+              return currentTest.input[idx];
+            }
+            return el;
+          };
+          return <Letter text={text()} state={state()} key={el + idx} />;
+        })}
+      </>
+    );
+  };
 
   return (
-    <div>
-      {[...currentTest.text].map((el, idx) => {
-        const state = (): LetterState["state"] => {
-          if (idx > currentTest.input.length) {
-            return "next";
-          }
-          const letter = currentTest.input[idx];
-          if (!letter) {
-            return "next";
-          }
-          const match = hiraganaMatch(letter, el);
-          if (match === "true") {
-            // Character has been typed
-            return "correct";
-          } else if (idx === currentTest.input.length) {
-            // Current character
-            return "current";
-          } else if (match === "false") {
-            return "wrong";
-          } else if (match === "partial") {
-            return "partial";
-          }
-          return "next";
-        };
-        const text = () => {
-          if (state() === "wrong" && currentTest.input[idx]) {
-            return currentTest.input[idx];
-          }
-          return el;
-        };
-        return <Letter text={text()} state={state()} key={el + idx} />;
-      })}
+    <div className="h-full w-full">
+      {currentTest.text.length === 0 ? (
+        <Skeleton className="h-16 w-1/4" />
+      ) : (
+        <List />
+      )}
     </div>
   );
 };
