@@ -29,21 +29,41 @@ type Subcommand = "none" | "theme" | "word-count";
 
 const subcommandAtom = atom<Subcommand>("none");
 
+const PaletteHeader = () => {
+  return (
+    <div className="bg-primary text-background flex items-center gap-2 px-4 py-3 font-mono text-xs font-semibold">
+      <div className="outline-background flex items-center gap-3 rounded px-2 outline">
+        <span className="font-mono">UP</span>
+        <span className="flex items-center gap-1">
+          <CommandIcon className="w-4"></CommandIcon>K
+        </span>
+      </div>
+
+      <div className="outline-background flex items-center gap-3 rounded px-2 outline">
+        <span className="font-mono">DOWN </span>
+        <span className="flex items-center gap-1">
+          <CommandIcon className="w-4"></CommandIcon>J
+        </span>
+      </div>
+    </div>
+  );
+};
+
 const Palette = ({ children, ...props }: Props) => {
   const [, setCommandPaletteState] = useAtom(commandPaletteStateAtom);
   const [commandPaletteOpen] = useAtom(commandPaletteOpenAtom);
+  const handleKeydown = (event: KeyboardEvent) => {
+    if (
+      (event.key === "p" || event.key == "P") &&
+      (event.metaKey || event.ctrlKey)
+    ) {
+      event.preventDefault();
+
+      setCommandPaletteState("open");
+    }
+  };
 
   useEffect(() => {
-    const handleKeydown = (event: KeyboardEvent) => {
-      if (
-        event.key === "p" ||
-        (event.key == "P" && (event.metaKey || event.ctrlKey))
-      ) {
-        event.preventDefault();
-
-        setCommandPaletteState("open");
-      }
-    };
     window.addEventListener("keydown", handleKeydown);
 
     return () => {
@@ -52,22 +72,8 @@ const Palette = ({ children, ...props }: Props) => {
   }, []);
   return (
     <CommandDialog {...props} open={props.open ?? commandPaletteOpen}>
-      <Command className="">
-        <div className="bg-primary text-background flex items-center gap-2 px-4 py-3 font-mono text-xs font-semibold">
-          <div className="outline-background flex items-center gap-3 rounded px-2 outline">
-            <span className="font-mono">UP</span>
-            <span className="flex items-center gap-1">
-              <CommandIcon className="w-4"></CommandIcon>K
-            </span>
-          </div>
-
-          <div className="outline-background flex items-center gap-3 rounded px-2 outline">
-            <span className="font-mono">DOWN </span>
-            <span className="flex items-center gap-1">
-              <CommandIcon className="w-4"></CommandIcon>J
-            </span>
-          </div>
-        </div>
+      <Command className="" autoFocus>
+        <PaletteHeader />
         <CommandInput placeholder="Type a command or search..." />
         <CommandList className="overflow-hidden">
           <CommandEmpty>No results found.</CommandEmpty>
@@ -79,7 +85,7 @@ const Palette = ({ children, ...props }: Props) => {
 };
 
 export const CommandPalette = ({ open, ...props }: Props) => {
-  const [, setCommandPaletteState] = useAtom(commandPaletteStateAtom);
+  const [cmdpState, setCommandPaletteState] = useAtom(commandPaletteStateAtom);
   const [subcommand, setSubcommand] = useAtom(subcommandAtom);
   useEffect(() => console.log(subcommand), [subcommand]);
   const isSubcommand = (sc: Subcommand) => subcommand === sc;
@@ -92,7 +98,7 @@ export const CommandPalette = ({ open, ...props }: Props) => {
             open || subcommand !== "none" ? "open" : "closed",
           );
         }}
-        open={open && subcommand === "none"}
+        open={subcommand === "none" && cmdpState === "open"}
       >
         <CommandGroup heading="Test">
           <CommandItem onSelect={() => setSubcommand("word-count")}>
@@ -150,6 +156,15 @@ const WordCountCommand = ({ ...props }: Props) => {
     schema.safeParse(settings.wordCount),
   );
   const errorStyle = inputState?.error ? "text-destructive font-semibold" : "";
+  const setWordCount = (wordCount: number) => {
+    setSettings((prev) => ({
+      ...prev,
+      wordCount,
+    }));
+    setSubcommand("none");
+    setCommandPaletteState("closed");
+    randomize();
+  };
 
   return (
     <CommandDialog
@@ -159,19 +174,14 @@ const WordCountCommand = ({ ...props }: Props) => {
       }}
     >
       <Command className="">
+        <PaletteHeader />
         <CommandInput
           className={errorStyle}
-          placeholder="type a number"
+          placeholder="type any number between 1 and 100."
           onKeyDown={(e) => {
             if (e.key === "Enter") {
               if (inputState.data) {
-                setSettings((prev) => ({
-                  ...prev,
-                  wordCount: inputState.data,
-                }));
-                randomize();
-                setSubcommand("none");
-                setCommandPaletteState("closed");
+                setWordCount(inputState.data);
               }
             }
           }}
@@ -180,6 +190,11 @@ const WordCountCommand = ({ ...props }: Props) => {
             setInputState(value);
           }}
         />
+        <CommandList className="overflow-hidden">
+          <CommandItem onSelect={() => setWordCount(10)}>10</CommandItem>
+          <CommandItem onSelect={() => setWordCount(50)}>50</CommandItem>
+          <CommandItem onSelect={() => setWordCount(100)}>100</CommandItem>
+        </CommandList>
       </Command>
     </CommandDialog>
   );
