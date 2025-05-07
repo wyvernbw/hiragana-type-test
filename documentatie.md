@@ -1,7 +1,3 @@
-Iată o documentație generală care acoperă părțile majore ale aplicației `hiragana-type-test`, bazată pe informațiile obținute:
-
----
-
 ## **Descriere Generală**
 `hiragana-type-test` este o aplicație web concepută pentru a ajuta utilizatorii să exerseze tastarea caracterelor `kana`. Este construită folosind **Next.js** și alte tehnologii moderne, cum ar fi **Drizzle** pentru gestionarea bazelor de date și **TailwindCSS** pentru stilizare.
 
@@ -56,7 +52,3 @@ Iată o documentație generală care acoperă părțile majore ale aplicației `
 
 6. **Readme.md**
    - Documentația de bază menționează tehnologiile utilizate și scopul aplicației.
-
----
-
-Dacă dorești detalii despre o anumită parte a aplicației (configurații, componente specifice, sau alte detalii), anunță-mă!
