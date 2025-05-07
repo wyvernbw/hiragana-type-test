@@ -35,7 +35,7 @@ export const Letter = ({
   const styles: Record<LetterState["state"], string> = {
     correct: twMerge(
       charClassName,
-      "text-green-500 dark:text-green-400 bg-green-500/20",
+      "text-emerald-500 dark:text-emerald-400 bg-emerald-500/20",
     ),
     current: twMerge(
       charClassName,
@@ -43,7 +43,7 @@ export const Letter = ({
     ),
     wrong: twMerge(
       charClassName,
-      "text-red-500 dark:text-red-400 bg-red-500/20",
+      "text-rose-500 dark:text-rose-400 bg-rose-500/20",
     ),
     next: twMerge(charClassName, "text-primary font-medium"),
     partial: twMerge(
@@ -111,11 +111,7 @@ export const LetterList = () => {
 
   return (
     <div className="h-full w-full">
-      {currentTest.text.length === 0 ? (
-        <Skeleton className="h-16 w-1/4" />
-      ) : (
-        <List />
-      )}
+      <List />
     </div>
   );
 };

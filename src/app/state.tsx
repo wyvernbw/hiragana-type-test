@@ -145,6 +145,17 @@ export const testStateAtom = atom((get) => {
   return "started";
 });
 
+export const resultAtom = atom((get) => {
+  const wpm = get(wpmAtom);
+  const acc = parseFloat(get(accuracyAtom));
+  if (acc < 30.0) return { state: "invalid", acc } as const;
+  return {
+    state: "valid",
+    wpm,
+    acc: get(accuracyAtom),
+  } as const;
+});
+
 export const currentMatchAtom = atom((get) => {
   const test = get(currentTestAtom);
   const idx = Math.max(0, test.input.length - 1);
