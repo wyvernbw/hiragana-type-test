@@ -175,9 +175,9 @@ type LastResult = z.infer<typeof lastResultSchema>;
 export const lastResultAtom = atom<LastResult>("none");
 export const setLastResultAtom = atom(
   null,
-  async (get, set, value: (prev: LastResult) => LastResult) => {
+  (get, set, value: (prev: LastResult) => LastResult) => {
     set(lastResultAtom, value(get(lastResultAtom)));
-    await set(saveLastResultAtom);
+    set(saveLastResultAtom).catch(console.error);
   },
 );
 export const savedLastResultAtom = atomWithStorage<string>(
@@ -261,7 +261,14 @@ export const userSessionValueAtom = atomWithStorage<undefined | UserSession>(
 );
 export const userSessionAtom = atom(
   (get) => get(userSessionValueAtom),
-  (_get, set, value: UserSession | undefined) => {
+  (get, set, value: UserSession | undefined) => {
+    const prev = get(userSessionValueAtom);
+    if (!value) {
+      set(setLastResultAtom, () => "none");
+    }
+    if (value && prev && value.id !== prev.id) {
+      set(setLastResultAtom, () => "none");
+    }
     set(userSessionValueAtom, value);
   },
 );

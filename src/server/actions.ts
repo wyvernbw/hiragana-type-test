@@ -225,7 +225,9 @@ export const signObject = async (obj: object) => {
   return hash;
 };
 
-type DecodeResult<T> = { status: "error" } | { status: "success"; data: T };
+type DecodeResult<T> =
+  | { status: "error"; message: string }
+  | { status: "success"; data: T };
 
 const decodeObject = async <T,>(
   token: string,
@@ -234,13 +236,13 @@ const decodeObject = async <T,>(
   return new Promise((resolve) => {
     jwt.verify(token, secret, {}, (err, value) => {
       if (err || !value) {
-        resolve({ status: "error" });
+        resolve({ status: "error", message: err?.message ?? "" });
         return;
       }
 
       const parsed = validator.safeParse(value);
       if (!parsed.success) {
-        resolve({ status: "error" });
+        resolve({ status: "error", message: parsed.error.message });
         return;
       }
 

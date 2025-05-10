@@ -44,16 +44,30 @@ export const useScoreUpdate = () => {
     onSuccess: () => {
       toast.success("Score submitted.");
     },
-    onError: () => {
-      toast.error("Error submitting score.");
+    onError: (error) => {
+      toast.error(error.message);
     },
-    mutationFn: async () => {
-      if (!userSession) return;
-      if (lastResult === "none" || lastResult.state === "invalid") return;
+    mutationFn: async ({
+      result,
+      session,
+    }: {
+      result: typeof lastResult;
+      session: typeof userSession;
+    }) => {
+      console.log("MUTATION: ", result);
+      if (!session) {
+        throw new Error("Not logged in.");
+      }
+      if (result === "none" || result.state === "invalid") {
+        throw new Error("Invalid test.");
+      }
+      if (result.submitted) {
+        return;
+      }
       const res = await addScore({
-        sessionId: userSession.id,
+        sessionId: session.id,
         score: {
-          ...lastResult,
+          ...result,
         },
       });
       // TODO: add toast
@@ -61,7 +75,7 @@ export const useScoreUpdate = () => {
         console.log(res.message);
         throw Error(res.message);
       }
-      setLastResult(() => ({
+      void setLastResult(() => ({
         wpm: res.data.wpm,
         acc: res.data.acc,
         state: "valid",
