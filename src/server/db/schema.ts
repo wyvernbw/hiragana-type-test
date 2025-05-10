@@ -28,13 +28,32 @@ export const sessionsTable = createTable("sessions", (d) => ({
   lastUsed: d.date().defaultNow(),
 }));
 
+export const scoresTable = createTable("scores", (d) => ({
+  id: d.text().primaryKey().notNull(),
+  userId: d
+    .text()
+    .notNull()
+    .references(() => usersTable.id),
+  wpm: d.real().notNull(),
+  acc: d.real().notNull(),
+  timestamp: d.timestamp().defaultNow().notNull(),
+}));
+
 export const usersRelations = relations(usersTable, ({ many }) => ({
   sessions: many(sessionsTable),
+  scores: many(scoresTable),
 }));
 
 export const sessionsRelations = relations(sessionsTable, ({ one }) => ({
   user: one(usersTable, {
     fields: [sessionsTable.userId],
+    references: [usersTable.id],
+  }),
+}));
+
+export const scoresRelations = relations(scoresTable, ({ one }) => ({
+  user: one(usersTable, {
+    fields: [scoresTable.userId],
     references: [usersTable.id],
   }),
 }));

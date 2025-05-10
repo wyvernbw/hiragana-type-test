@@ -3,9 +3,12 @@ import { z } from "zod";
 import * as argon2 from "argon2";
 import { nanoid } from "nanoid";
 import { db } from "./db";
-import { sessionsTable, usersTable } from "./db/schema";
+import { scoresTable, sessionsTable, usersTable } from "./db/schema";
 import { eq, sql } from "drizzle-orm";
 import { signupSchema, type SignupParams } from "./types";
+import { randomBytes } from "crypto";
+import * as jwt from "jsonwebtoken";
+import { lastResultSchema, scoreSchema } from "@/app/state";
 
 const sessionsSchema = z.object({
   id: z.string().nanoid(),
@@ -163,3 +166,88 @@ export const refreshSession = async (sessionId: string) => {
     return "success";
   }
 };
+
+export const addScore = async (opts: {
+  sessionId: string;
+  score: {
+    wpm: number;
+    acc: number;
+  };
+}) => {
+  const score = scoreSchema.safeParse(opts.score);
+  if (score.error) {
+    return {
+      status: "error",
+      message: "invalid score passed. " + score.error.message,
+    } as const;
+  }
+  const session = await querySession(opts.sessionId);
+  if (session.status === "error") {
+    return {
+      status: "error",
+      message: "authorization error.",
+    } as const;
+  }
+  const userId = session.session.userId;
+  const res = await db
+    .insert(scoresTable)
+    .values([
+      {
+        id: nanoid(),
+        userId,
+        wpm: score.data.wpm,
+        acc: score.data.acc,
+      },
+    ])
+    .returning();
+
+  if (res[0] === undefined) {
+    return {
+      status: "error",
+      message: "db error.",
+    } as const;
+  }
+
+  return {
+    status: "success",
+    data: res[0],
+  };
+};
+
+const secret = randomBytes(64).toString("hex");
+
+export const signObject = async (obj: object) => {
+  const hash = await new Promise<string | undefined>((r) =>
+    jwt.sign(obj, secret, {}, (_error, value) => {
+      r(value);
+    }),
+  );
+  return hash;
+};
+
+type DecodeResult<T> = { status: "error" } | { status: "success"; data: T };
+
+const decodeObject = async <T,>(
+  token: string,
+  validator: z.ZodType<T>,
+): Promise<DecodeResult<T>> => {
+  return new Promise((resolve) => {
+    jwt.verify(token, secret, {}, (err, value) => {
+      if (err || !value) {
+        resolve({ status: "error" });
+        return;
+      }
+
+      const parsed = validator.safeParse(value);
+      if (!parsed.success) {
+        resolve({ status: "error" });
+        return;
+      }
+
+      resolve({ status: "success", data: parsed.data });
+    });
+  });
+};
+
+export const decodeLastResult = async (token: string) =>
+  await decodeObject(token, lastResultSchema);

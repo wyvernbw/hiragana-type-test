@@ -6,6 +6,7 @@ import { type Metadata } from "next";
 import { Geist } from "next/font/google";
 import Providers from "./providers";
 import { Suspense } from "react";
+import { Toaster } from "@/components/ui/sonner";
 
 export const metadata: Metadata = {
   title: "Karē",
@@ -22,21 +23,21 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${geist.variable}`} suppressHydrationWarning >
+    <html lang="en" className={`${geist.variable}`} suppressHydrationWarning>
       <body>
         <Suspense>
-
-        <Providers>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
-            {children}
-          </ThemeProvider>
-        </Providers>
-          </Suspense>
+          <Providers>
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="system"
+              enableSystem
+              disableTransitionOnChange
+            >
+              {children}
+              <Toaster />
+            </ThemeProvider>
+          </Providers>
+        </Suspense>
       </body>
     </html>
   );

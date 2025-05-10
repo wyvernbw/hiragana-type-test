@@ -1,10 +1,22 @@
 import { randomWords } from "@/app/client/api";
 import { atom, type ExtractAtomValue } from "jotai";
-import { atomWithSuspenseQuery } from "jotai-tanstack-query";
-import { atomWithDefault, atomWithStorage, loadable } from "jotai/utils";
+import { atomWithMutation, atomWithSuspenseQuery } from "jotai-tanstack-query";
+import {
+  atomWithDefault,
+  atomWithStorage,
+  createJSONStorage,
+  loadable,
+} from "jotai/utils";
 import { hiraganaMatch, jpSpace, splitKanaDakuten } from "@/lib/hiragana";
-import { type UserSession } from "@/server/actions";
+import { signObject, type UserSession } from "@/server/actions";
 import { connection } from "next/server";
+import * as jwt from "jsonwebtoken";
+import { z } from "zod";
+import {
+  useMutation,
+  useQuery,
+  type UseQueryResult,
+} from "@tanstack/react-query";
 
 function shuffleArray<T>(array: T[]): T[] {
   const shuffled = [...array]; // copy to avoid mutating the original array
@@ -143,6 +155,57 @@ export const testStateAtom = atom((get) => {
     return "done";
   }
   return "started";
+});
+
+export const scoreSchema = z.object({
+  wpm: z.number().min(1).max(300, { message: "are you even human?" }),
+  acc: z.number().min(0.2).max(1.0),
+});
+export const lastResultSchema = z.literal("none").or(
+  z.discriminatedUnion("state", [
+    scoreSchema.extend({
+      state: z.literal("valid"),
+      submitted: z.boolean(),
+    }),
+    scoreSchema.omit({ wpm: true }).extend({ state: z.literal("invalid") }),
+  ]),
+);
+type LastResult = z.infer<typeof lastResultSchema>;
+
+export const lastResultAtom = atom<LastResult>("none");
+export const setLastResultAtom = atom(
+  null,
+  async (get, set, value: (prev: LastResult) => LastResult) => {
+    set(lastResultAtom, value(get(lastResultAtom)));
+    await set(saveLastResultAtom);
+  },
+);
+export const savedLastResultAtom = atomWithStorage<string>(
+  "last-result",
+  "none",
+);
+export const encodeLastResultQueryAtom = atomWithSuspenseQuery((get) => {
+  const lastResult = get(lastResultAtom);
+  return {
+    queryKey: ["save-last-result", lastResult],
+    queryFn: async () => {
+      if (lastResult === "none") return "none";
+      const encoded = await signObject(lastResult);
+      return encoded;
+    },
+  };
+});
+export const saveLastResultAtom = atom(null, async (get, set) => {
+  const encoded = await get(encodeLastResultQueryAtom);
+  console.log("saving...", get(lastResultAtom));
+  set(savedLastResultAtom, encoded.data ?? "none");
+  console.log("saved ", get(savedLastResultAtom));
+});
+export const lastResultStateAtom = atom((get) => {
+  const res = get(lastResultAtom);
+  if (res === "none") return "none";
+  if (res.state === "invalid") return "invalid";
+  return res.submitted ? "submitted" : "unsubmitted";
 });
 
 export const resultAtom = atom((get) => {
