@@ -136,7 +136,7 @@ const columns: ColumnDef<Score>[] = [
     accessorKey: "date",
     header: "Date",
     cell: ({ row }) => {
-      const date = row.getValue("date") as Date;
+      const date = row.getValue<Date>("date");
       return date.toDateString();
     },
   },
@@ -144,7 +144,7 @@ const columns: ColumnDef<Score>[] = [
     accessorKey: "time",
     header: "Time",
     cell: ({ row }) => {
-      const date = row.getValue("date") as Date;
+      const date = row.getValue<Date>("date");
       return date.toLocaleTimeString();
     },
   },
