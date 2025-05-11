@@ -58,7 +58,7 @@ export default function ScoreTable({ trigger, scores }: Props) {
   const isDesktop = useMediaQuery("(min-width: 768px)");
   const scores2 = scores;
   const scoreQuery = useSuspenseQuery({
-    initialData: Array(10).fill(scores).flat(),
+    initialData: scores,
     queryKey: ["score-table-query", testState],
     queryFn: async () => {
       if (!userSession) return scores2 ?? [];
@@ -71,7 +71,7 @@ export default function ScoreTable({ trigger, scores }: Props) {
           date: timestamp,
         })),
       );
-      return Array(10).fill(scores).flat();
+      return scores;
     },
   });
   console.log(scoreQuery.data.length);
