@@ -100,7 +100,7 @@ export const TypeApp = ({ words }: { words: string[] }) => {
     <>
       <ResultsDrawer />
       <div className="flex h-full flex-col overflow-hidden">
-        <JapaneseInput className="bg-muted/50 my-4 flex h-1/2 rounded-md border p-4 text-lg">
+        <JapaneseInput className="my-4 flex h-1/2 rounded-md border p-4 text-lg">
           <LetterList />
         </JapaneseInput>
         <KeyboardPreview className="hidden md:flex" />

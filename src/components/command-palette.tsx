@@ -32,14 +32,14 @@ const subcommandAtom = atom<Subcommand>("none");
 const PaletteHeader = () => {
   return (
     <div className="bg-primary text-background flex items-center gap-2 px-4 py-3 font-mono text-xs font-semibold">
-      <div className="outline-background flex items-center gap-3 rounded px-2 outline">
+      <div className="border-background flex items-center gap-3 rounded px-2 border">
         <span className="font-mono">UP</span>
         <span className="flex items-center gap-1">
           <CommandIcon className="w-4"></CommandIcon>K
         </span>
       </div>
 
-      <div className="outline-background flex items-center gap-3 rounded px-2 outline">
+      <div className="border-background flex items-center gap-3 rounded px-2 border">
         <span className="font-mono">DOWN </span>
         <span className="flex items-center gap-1">
           <CommandIcon className="w-4"></CommandIcon>J

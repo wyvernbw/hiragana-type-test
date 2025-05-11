@@ -26,7 +26,7 @@ export default async function Page() {
       <Suspense fallback={<Skeleton />}>
         <CommandPalette />
       </Suspense>
-      <Card className="flex h-full w-3/4">
+      <Card className="flex flex-col h-full w-3/4">
         <CardHeader>
           <CardTitle className="flex scroll-m-20 justify-between border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0">
             🍛 Karē

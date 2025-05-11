@@ -91,7 +91,7 @@ export default function JapaneseInput({
   return (
     <div
       className={twMerge(
-        "bg-muted/50 relative my-4 overflow-hidden rounded-md border p-4 text-lg",
+        "relative my-4 overflow-hidden rounded-md border p-4 text-lg",
         className,
       )}
     >
@@ -103,7 +103,7 @@ export default function JapaneseInput({
           {label}
         </label>
       )}
-      <div className="absolute top-0 left-0 h-full w-full bg-linear-to-t from-stone-900/2 to-stone-900/0 leading-relaxed dark:from-stone-900/60"></div>
+      <div className="absolute top-0 left-0 h-full w-full bg-linear-to-t from-neutral-900/2 to-neutral-900/0 leading-relaxed dark:from-neutral-900/60"></div>
       <input
         disabled={disabled ?? testState === "done"}
         ref={inputRef}

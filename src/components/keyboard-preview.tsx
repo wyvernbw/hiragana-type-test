@@ -14,10 +14,6 @@ export const KeyboardPreview = ({ className }: InputProps) => {
   const text = useAtomValue(textAtom);
   return (
     <div className={twMerge("mt-6 mb-2 flex flex-col items-center", className)}>
-      <h4 className="mb-2 flex items-center gap-2 text-sm">
-        <Keyboard className="h-4 w-4" />
-        Keyboard Guide
-      </h4>
       <div className="mx-auto flex w-min flex-col gap-2">
         {keyboardLayout.map((row, rowIndex) => {
           const leftMargin: Record<number, string> = {
@@ -50,17 +46,16 @@ export const KeyboardPreview = ({ className }: InputProps) => {
                 const spaceHide = keyObj.key === "space" ? "hidden" : "";
                 const homeRowStyle =
                   keyObj.key === "f" || keyObj.key === "j"
-                    ? "font-bold text-foreground outline-white"
+                    ? "font-bold text-foreground border-white"
                     : "";
 
                 return (
                   <div
                     key={keyObj.key}
-                    className={`p-6 outline ${keyWidth} flex h-12 flex-col items-center justify-center rounded-md border transition ${
-                      isNextKey
+                    className={`p-6 ${keyWidth} flex h-12 flex-col items-center justify-center rounded-md border transition ${isNextKey
                         ? "bg-primary text-primary-foreground border-primary animate-pulse font-semibold"
-                        : "bg-muted border-input"
-                    } ${homeRowStyle}`}
+                        : ""
+                      } ${homeRowStyle}`}
                   >
                     <span className={`${isNextKey ? "font-bold" : ""}`}>
                       {keyObj.hiragana && (
