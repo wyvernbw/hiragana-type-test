@@ -275,3 +275,4 @@ export const userSessionAtom = atom(
 export const loggedInAtom = atom(
   async (get) => get(userSessionAtom) !== undefined,
 );
+

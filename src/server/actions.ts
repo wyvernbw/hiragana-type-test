@@ -9,6 +9,7 @@ import { signupSchema, type SignupParams } from "./types";
 import { randomBytes } from "crypto";
 import * as jwt from "jsonwebtoken";
 import { lastResultSchema, scoreSchema } from "@/app/state";
+import { cookies } from "next/headers";
 
 const sessionsSchema = z.object({
   id: z.string().nanoid(),
@@ -25,7 +26,7 @@ export const signUp = async (params: SignupParams) => {
   const password = await (async () => {
     try {
       return await argon2.hash(data.password);
-    } catch (err) {}
+    } catch (err) { }
   })();
   if (!password) {
     return {
@@ -137,8 +138,10 @@ export const login = async (loginParams: {
       return "internal server error.";
     }
     console.log("user login success.");
+    const parsedSession = sessionsSchema.parse(session);
+    (await cookies()).set("sessionId", parsedSession.id)
     return {
-      session: sessionsSchema.parse(session),
+      session: parsedSession,
       user,
     };
   } catch (err) {
@@ -253,3 +256,22 @@ const decodeObject = async <T,>(
 
 export const decodeLastResult = async (token: string) =>
   await decodeObject(token, lastResultSchema);
+
+export const getScores = async (sessionIdArg: string, opts: {
+  count: number,
+  page: number,
+}) => {
+  const sessionId = z.string().nanoid().parse(sessionIdArg);
+  const res = await querySession(sessionId)
+  if (res.status === "error") {
+    throw new Error("invalid user session.")
+  }
+  const session = res.session;
+  const scores = await db.query.scoresTable.findMany({
+    where: eq(scoresTable.userId, session.userId),
+    offset: opts.page * 50,
+    limit: opts.page * 50 + opts.count,
+    orderBy: (scores, { asc }) => [asc(scores.timestamp)]
+  })
+  return scores;
+}

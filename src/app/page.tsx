@@ -18,15 +18,15 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { z } from "zod";
 import { TypeApp } from "./app";
 import { connection } from "next/server";
+import ScoreTableData from "./score-table-data";
 
 export default async function Page() {
-  "use cache";
   return (
-    <div className="flex h-screen w-screen flex-col items-center p-10 md:justify-center">
+    <div className="flex h-screen w-screen flex-col items-center sm:p-2 md:justify-center md:p-10">
       <Suspense fallback={<Skeleton />}>
         <CommandPalette />
       </Suspense>
-      <Card className="flex flex-col h-full w-3/4">
+      <Card className="flex h-full flex-col sm:w-screen md:w-3/4">
         <CardHeader>
           <CardTitle className="flex scroll-m-20 justify-between border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0">
             🍛 Karē
@@ -43,6 +43,9 @@ export default async function Page() {
         <CardContent className="flex h-full w-full flex-col overflow-hidden">
           <Suspense fallback={<Skeleton className="h-full w-full" />}>
             <App />
+          </Suspense>
+          <Suspense>
+            <ScoreTableData />
           </Suspense>
         </CardContent>
         <CardFooter></CardFooter>

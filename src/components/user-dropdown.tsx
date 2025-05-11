@@ -14,10 +14,12 @@ import { Button } from "./ui/button";
 import { loggedInAtom, userSessionAtom } from "@/app/state";
 import { useAtom, useAtomValue } from "jotai";
 import Link from "next/link";
+import { scoreTableOpenAtom } from "./score-table";
 
 export const UserDropdown = () => {
   const loggedIn = useAtomValue(loggedInAtom);
   const [userSession, setUserSession] = useAtom(userSessionAtom);
+  const [, setScoreTableOpen] = useAtom(scoreTableOpenAtom);
 
   const LoggedIn = () => {
     "use client";
@@ -25,7 +27,7 @@ export const UserDropdown = () => {
       <>
         <DropdownMenuLabel>{userSession?.user.username}</DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>View Profile</DropdownMenuItem>
+        <DropdownMenuItem onClick={() => setScoreTableOpen(prev => !prev)}>View Profile</DropdownMenuItem>
         <DropdownMenuItem
           onClick={(_e) => {
             setUserSession(undefined);

@@ -17,9 +17,11 @@ import {
 } from "./state";
 import { useAtom } from "jotai";
 import { useScoreUpdate } from "./hooks";
-import { useEffect, useRef } from "react";
+import { Suspense, useEffect, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { decodeLastResult } from "@/server/actions";
+import dynamic from "next/dynamic";
+
 
 export const TypeApp = ({ words }: { words: string[] }) => {
   useHydrateAtoms([[allWordsAtom, words]] as const);
